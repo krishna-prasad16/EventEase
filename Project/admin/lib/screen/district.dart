@@ -9,14 +9,14 @@ class ManageDistrict extends StatefulWidget {
   State<ManageDistrict> createState() => _ManageDistrictState();
 }
 
- class _ManageDistrictState extends State<ManageDistrict>
+class _ManageDistrictState extends State<ManageDistrict>
     with SingleTickerProviderStateMixin {
   bool _isFormVisible = false; // To manage form visibility
   final Duration _animationDuration = const Duration(milliseconds: 300);
   final TextEditingController distController = TextEditingController();
   List<Map<String, dynamic>> _dist = [];
-  int _editid =0;
-
+  int _editid = 0;
+//insert function
   Future<void> distSubmit() async {
     try {
       String district = distController.text;
@@ -33,7 +33,7 @@ class ManageDistrict extends StatefulWidget {
       print("ERROR ADDING DISTRICT: $e");
     }
   }
-
+//select function
   Future<void> fetchData() async {
     try {
       final response = await supabase.from('tbl_district').select();
@@ -44,7 +44,7 @@ class ManageDistrict extends StatefulWidget {
       print('ERROR SELECTING DISTRICT:$e');
     }
   }
-
+//delete funtion
   void delete(int distid) async {
     try {
       await supabase.from("tbl_district").delete().eq('id', distid);
@@ -56,23 +56,23 @@ class ManageDistrict extends StatefulWidget {
       print("ERROR:$e");
     }
   }
-
-void update() async{
-  try{
-    await supabase.from("tbl_district").update({
-      "dist_name":distController.text
-    }).eq('id',_editid);
-    distController.clear();
-    _editid=0;
-     fetchData();
+//update function
+  void update() async {
+    try {
+      await supabase
+          .from("tbl_district")
+          .update({"dist_name": distController.text}).eq('id', _editid);
+      distController.clear();
+      _editid = 0;
+      fetchData();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Updated"),
       ));
+    } catch (e) {
+      print("ERROR:$e");
+    }
   }
-  catch(e){
-    print("ERROR:$e");
-  }
-}
+
   @override
   void initState() {
     super.initState();
@@ -125,15 +125,12 @@ void update() async{
                           ),
                           ElevatedButton(
                               onPressed: () {
-                                if(_editid !=0)
-                                {
+                                if (_editid != 0) {
                                   update();
-                                  _isFormVisible=false;
-                                }
-                                else
-                                {
-                                distSubmit();
-                                _isFormVisible=false;
+                                  _isFormVisible = false;
+                                } else {
+                                  distSubmit();
+                                  _isFormVisible = false;
                                 }
                               },
                               child: Text('Submit'))
@@ -148,7 +145,7 @@ void update() async{
               DataColumn(label: Text("Sl.No")),
               DataColumn(label: Text("District")),
               DataColumn(label: Text("Delete")),
-               DataColumn(label: Text("Edit")),
+              DataColumn(label: Text("Edit")),
             ],
             rows: _dist.asMap().entries.map((entry) {
               return DataRow(cells: [
@@ -166,9 +163,9 @@ void update() async{
                 DataCell(IconButton(
                   icon: Icon(Icons.edit, color: Colors.grey),
                   onPressed: () {
-                    _editid=entry.value['id'];
-                    distController.text=entry.value['dist_name'];
-                    _isFormVisible=true;
+                    _editid = entry.value['id'];
+                    distController.text = entry.value['dist_name'];
+                    _isFormVisible = true;
                   },
                 )),
               ]);
