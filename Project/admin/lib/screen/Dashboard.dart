@@ -25,7 +25,7 @@ class _AdminHomeState extends State<AdminHome> {
     DecoManage(),
     Catering(),
     ManageDistrict(),
-    Place(),
+    Manageplace(),
     ManageEvent(),
     Complaints(),
     const Center(child: Text('Settings Content')),
