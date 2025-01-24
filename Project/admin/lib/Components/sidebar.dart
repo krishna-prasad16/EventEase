@@ -23,8 +23,7 @@ class _SideBarState extends State<SideBar> {
   final List<IconData> icons = [
     
     Icons.person,
-    Icons.admin_panel_settings_sharp,
-    Icons.account_balance_outlined, 
+    Icons.admin_panel_settings_sharp, 
     Icons.food_bank,
     Icons.place,
     Icons.place_outlined,
