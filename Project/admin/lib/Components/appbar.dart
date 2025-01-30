@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class Appbar1 extends StatelessWidget {
@@ -6,27 +5,32 @@ class Appbar1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        height: 50,
-        decoration: BoxDecoration(color:  Color(0xffbc8a5f)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Icon(
-              Icons.person,
-              color: Colors.black,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            Text(
-              "Admin",
-              style: TextStyle(color: Colors.black),
-            ),
-            SizedBox(
-              width: 40,
-            )
-          ],
-        ));
+    return Column(
+      children: [
+        // SizedBox(height: 15),
+        Container(
+            height: 50,
+            decoration: BoxDecoration(color: Color(0xffccdad1)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Icon(
+                  Icons.person,
+                  color: Colors.black,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "Admin",
+                  style: TextStyle(color: Colors.black),
+                ),
+                SizedBox(
+                  width: 40,
+                )
+              ],
+            )),
+      ],
+    );
   }
 }

@@ -36,7 +36,7 @@ class _ManageplaceState extends State<Manageplace>
       print("Inserted");
       placeController.clear();
     } catch (e) {
-      print("Error adding place");
+      print("Error adding place:$e");
     }
   }
 
@@ -124,7 +124,7 @@ class _ManageplaceState extends State<Manageplace>
                             const SizedBox(width: 10),
                             ElevatedButton(
                               onPressed: () {
-                                Manageplace();
+                                place();
                               },
                               child: const Text("Add"),
                             ),

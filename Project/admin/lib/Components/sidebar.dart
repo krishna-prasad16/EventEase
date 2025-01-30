@@ -10,7 +10,6 @@ class SideBar extends StatefulWidget {
 
 class _SideBarState extends State<SideBar> {
   final List<String> pages = [
-
     "profile",
     " Decorators",
     " Catering",
@@ -18,12 +17,10 @@ class _SideBarState extends State<SideBar> {
     " Place",
     " EventType",
     " Complaints",
-    
   ];
   final List<IconData> icons = [
-    
     Icons.person,
-    Icons.admin_panel_settings_sharp, 
+    Icons.admin_panel_settings_sharp,
     Icons.food_bank,
     Icons.place,
     Icons.place_outlined,
@@ -34,18 +31,27 @@ class _SideBarState extends State<SideBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      // height:700,
+     
       decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-          Color.fromARGB(255, 183, 137, 91),
-       Color(0xffa67c52)
-      ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+       
+        // borderRadius: BorderRadius.only(
+        //   topLeft: Radius.circular(30),
+        //   bottomLeft: Radius.circular(30),
+        // ),
+        color: Color(0xff065a60), // Set a solid color
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Image.asset('assets/logo.png', width: 50,height: 70,),
+              // Image.asset(
+              //   'assets/logo.png',
+              //   width: 50,
+              //   height: 70,
+              // ),
               ListView.builder(
                   shrinkWrap: true,
                   itemCount: pages.length,

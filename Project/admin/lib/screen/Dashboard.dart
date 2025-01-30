@@ -41,22 +41,29 @@ class _AdminHomeState extends State<AdminHome> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Color(0xFFFFFFFF),
-        body: Row(
+        body: Stack(
           children: [
-            Expanded(
-                flex: 1,
-                child: SideBar(
-                  onItemSelected: onSidebarItemTapped,
-                )),
-            Expanded(
-              flex: 5,
-              child: Column(
+            Container(
+              
+              child: Row(
                 children: [
-                  Appbar1(),
-                  _pages[_selectedIndex],
+                  Expanded(
+                      flex: 1,
+                      child: SideBar(
+                        onItemSelected: onSidebarItemTapped,
+                      )),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      children: [
+                        Appbar1(),
+                        _pages[_selectedIndex],
+                      ],
+                    ),
+                  )
                 ],
               ),
-            )
+            ),
           ],
         ));
   }
