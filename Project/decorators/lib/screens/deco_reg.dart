@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:decorators/main.dart';
+import 'package:decorators/screens/index.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -69,6 +70,7 @@ class _DecoregState extends State<Decoreg> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Registration Successfull"),
       ));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Index(),));
       print("Registration Successfull");
     } catch (e) {
       print('ERROR:$e');

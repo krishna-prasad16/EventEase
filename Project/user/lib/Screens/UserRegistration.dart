@@ -37,7 +37,7 @@ class _RegistrationState extends State<Registration> {
                 // ),
                 const SizedBox(height: 16.0),
                 const Text(
-                  "Event Ease",
+                  "Meredith",
                   style: TextStyle(
                     fontSize: 28.0,
                     fontWeight: FontWeight.bold,

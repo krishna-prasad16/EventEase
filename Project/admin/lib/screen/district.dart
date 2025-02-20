@@ -17,6 +17,7 @@ class _ManageDistrictState extends State<ManageDistrict>
   List<Map<String, dynamic>> _dist = [];
   int _editid = 0;
 
+//insertion code
   Future<void> distSubmit() async {
     try {
       String district = distController.text;
@@ -33,7 +34,7 @@ class _ManageDistrictState extends State<ManageDistrict>
       print("ERROR ADDING DISTRICT: $e");
     }
   }
-
+//display
   Future<void> fetchData() async {
     try {
       final response = await supabase.from('tbl_district').select();
@@ -44,7 +45,7 @@ class _ManageDistrictState extends State<ManageDistrict>
       print('ERROR SELECTING DISTRICT:$e');
     }
   }
-
+//Delete
   void delete(int distid) async {
     try {
       await supabase.from("tbl_district").delete().eq('id', distid);
@@ -56,7 +57,7 @@ class _ManageDistrictState extends State<ManageDistrict>
       print("ERROR:$e");
     }
   }
-
+//edit
   void update() async {
     try {
       await supabase

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:user/Screens/Homepage.dart';
 import 'package:user/Screens/UserRegistration.dart';
 
 class Login extends StatefulWidget {
@@ -23,14 +24,14 @@ class _LoginState extends State<Login> {
                 // Logo Section 
                 const Column(
                   children: [
-                    Icon(
-                      Icons.nightlight_round,
-                      size: 40,
-                      color: Color(0xFF1C355E), // Dark blue
-                    ),
+                    // Icon(
+                    //   Icons.nightlight_round,
+                    //   size: 40,
+                    //   color: Color(0xFF1C355E), // Dark blue
+                    // ),
                     SizedBox(height: 10),
                     Text(
-                      'Event Ease',
+                      'Meredith',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -118,6 +119,7 @@ class _LoginState extends State<Login> {
                   child: TextButton(
                     onPressed: () {
                       // Forgot Password functionality
+                      
                     },
                     child: const Text(
                       'Forgot Password?',
@@ -129,6 +131,8 @@ class _LoginState extends State<Login> {
                 // Sign In Button
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (Context)=>Homepage()),
+                    );
                     // Sign In functionality
                   },
                   style: ElevatedButton.styleFrom(
