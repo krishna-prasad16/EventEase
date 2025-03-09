@@ -23,6 +23,26 @@ class _DecoManageState extends State<DecoManage> {
     }
   }
 
+  Future<void> accept(String id) async {
+    try {
+      await supabase.from('tbl_decorators').update({
+        'dec_status': 1
+      }).eq('id', id); 
+    } catch (e) {
+      print("Error : $e");
+    }
+  }
+  Future<void> reject(String id) async {
+    try {
+      await supabase.from('tbl_decorators').update({
+        'dec_status': 2
+      }).eq('id', id); 
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -77,14 +97,18 @@ class _DecoManageState extends State<DecoManage> {
               IconButton(
                 icon:
                     Icon(Icons.check, color: Color.fromARGB(255, 77, 39, 190)),
-                onPressed: () {},
+                onPressed: () {
+                  accept(entry.value['id']);
+                },
               ),
             ),
             DataCell(
               IconButton(
                 icon: const Icon(Icons.close_outlined,
                     color: Color.fromARGB(255, 59, 69, 252)),
-                onPressed: () {},
+                onPressed: () {
+                  reject(entry.value['id']);
+                },
               ),
             ),
           ]);
