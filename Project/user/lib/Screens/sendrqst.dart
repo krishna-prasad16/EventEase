@@ -11,8 +11,6 @@ class SendRequest extends StatefulWidget {
 class _SendRequestState extends State<SendRequest> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-    );
+    return Scaffold();
   }
 }

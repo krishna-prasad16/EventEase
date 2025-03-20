@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:user/Screens/login.dart';
+import 'package:user/Screens/viewdecorations.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -101,14 +102,13 @@ class _HomepageState extends State<Homepage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70), // Increase AppBar height
           child:AppBar(
-            backgroundColor: Colors.white,
-            automaticallyImplyLeading: false, // Removes default back arrow
-            leading: IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            ),
+            backgroundColor: Colors.white, // Removes default back arrow
+            // leading: IconButton(
+            //   icon: Icon(Icons.menu),
+            //   onPressed: () {
+            //     Scaffold.of(context).openDrawer();
+            //   },
+            // ),
             title:
                 SizedBox(), // Keeps the title empty to allow manual alignment
             actions: [
@@ -117,7 +117,8 @@ class _HomepageState extends State<Homepage> {
                     right: 16.0, top: 30), // Adjust as needed
                 child: Image.asset(
                   "assets/logo.png",
-                  height: 50, // Adjust size as needed
+                  height: 40, 
+                  width: 130,// Adjust size as needed
                 ),
               ),
             ],
@@ -130,7 +131,7 @@ class _HomepageState extends State<Homepage> {
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
+                decoration: BoxDecoration(color: const Color.fromARGB(255, 187, 195, 201)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -444,7 +445,7 @@ class _HomepageState extends State<Homepage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Decorators",
+                            "Decorations",
                             style: GoogleFonts.cormorantGaramond(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -466,7 +467,7 @@ class _HomepageState extends State<Homepage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Login()),
+                                    builder: (context) => Viewdecorations()),
                               );
                             },
                             child: Row(
@@ -553,7 +554,7 @@ class _HomepageState extends State<Homepage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Login()),
+                                    builder: (context) => Viewdecorations()),
                               );
                             },
                             child: Row(

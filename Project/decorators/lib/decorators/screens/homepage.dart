@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:decorators/decorators/screens/mydecoration.dart';
+import 'package:decorators/decorators/screens/viewdecoration.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -153,10 +155,31 @@ class _HomepageState extends State<Homepage> {
                   ),
                   Row(
                     children: [
-                      TextButton(onPressed: () {}, child: Text("Home")),
-                      TextButton(onPressed: () {}, child: Text("My Booking")),
+                      TextButton(onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Homepage()),
+                          );
+                      }, child: Text("Home")),
+                      // TextButton(onPressed: () {
+                      //   Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(builder: (context) => Mydecoration()),
+                      //     );
+                      // }, child: Text("My Booking")),
+                      TextButton(onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => Mydecoration()),
+                          );
+                      }, child: Text("My Decoration")),
                       TextButton(
-                          onPressed: () {}, child: Text("My Decorations")),
+                          onPressed: () {
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ViewDecoration()),
+                          );
+                          }, child: Text("View Decorations")),
                       TextButton(onPressed: () {}, child: Text("Profile")),
                       TextButton(onPressed: () {}, child: Text("Logout")),
                     ],

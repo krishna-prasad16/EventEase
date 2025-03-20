@@ -5,6 +5,7 @@ import 'package:decorators/main.dart';
 import 'package:decorators/index.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Decoreg extends StatefulWidget {
   const Decoreg({super.key});
@@ -70,7 +71,11 @@ class _DecoregState extends State<Decoreg> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Registration Successfull"),
       ));
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Index(),));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Index(),
+          ));
       print("Registration Successfull");
     } catch (e) {
       print('ERROR:$e');
@@ -117,8 +122,6 @@ class _DecoregState extends State<Decoreg> {
     }
   }
 
-  
-
   List<Map<String, dynamic>> _distList = [];
   List<Map<String, dynamic>> _placeList = [];
 
@@ -152,7 +155,7 @@ class _DecoregState extends State<Decoreg> {
     }
   }
 
-   @override
+  @override
   void initState() {
     super.initState();
     fetchDist();
@@ -161,305 +164,267 @@ class _DecoregState extends State<Decoreg> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF3EBE6), // pastel background
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Form(
-                  key: _formKey,
-                  child: Container(
-                    width: 500,
-                    color: const Color.fromARGB(255, 197, 181, 175),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16.0),
-                        const Text(
-                          "  Decorator Registration",
-                          style: TextStyle(
-                            fontSize: 28.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white70,
-                          ),
-                        ),
-
-                        const SizedBox(height: 5.0),
-                        SizedBox(
-                          height: 120,
-                          width: 120,
-                          child: pickedImage == null
-                              ? GestureDetector(
-                                  onTap: handleImagePick,
-                                  child: Icon(
-                                    Icons.add_a_photo,
-                                    color: Color(0xFF0277BD),
-                                    size: 50,
-                                  ),
-                                )
-                              : GestureDetector(
-                                  onTap: handleImagePick,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: pickedImage!.bytes != null
-                                        ? Image.memory(
-                                            Uint8List.fromList(
-                                                pickedImage!.bytes!), // For web
-                                            fit: BoxFit.cover,
-                                          )
-                                        : Image.file(
-                                            File(pickedImage!
-                                                .path!), // For mobile/desktop
-                                            fit: BoxFit.cover,
-                                          ),
-                                  ),
-                                ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              hintText: "Your Name",
-                              prefixIcon: const Icon(Icons.person),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 20),
-                              border: OutlineInputBorder(
-                                // borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter your name";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(height: 16.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              hintText: "Your Email",
-                              prefixIcon: const Icon(Icons.email),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            keyboardType: TextInputType.emailAddress,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter your email";
-                              }
-                              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                  .hasMatch(value)) {
-                                return "Please enter a valid email address";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(height: 16.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _adrsController,
-                            decoration: InputDecoration(
-                              hintText: "Your address",
-                              prefixIcon: const Icon(Icons.note_add_rounded),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 20),
-                              border: OutlineInputBorder(
-                                // borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter your address";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(height: 16.0),
-
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _contactController,
-                            decoration: InputDecoration(
-                              hintText: "Your phone Number ",
-                              prefixIcon: const Icon(Icons.phone),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 20),
-                              border: OutlineInputBorder(
-                                // borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter your Phone Number";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        // Place ID
-                        Row(
-                          children: [
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: selectedDist,
-                                hint: const Text("Select District"),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedDist = newValue;
-                                  });
-                                  fetchPlace(newValue);
-                                },
-                                items: _distList.map((district) {
-                                  return DropdownMenuItem<String>(
-                                    value: district['id'].toString(),
-                                    child: Text(district['dist_name']),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                value: selectedPlace,
-                                hint: const Text("Select place"),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedPlace = newValue;
-                                  });
-                                },
-                                items: _placeList.map((place) {
-                                  return DropdownMenuItem<String>(
-                                    value: place['place_id'].toString(),
-                                    child: Text(place['place_name']),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            readOnly: true,
-                            onTap: () {
-                              handleFilePick();
-                            },
-                            controller: _proofController,
-                            decoration: InputDecoration(
-                              hintText: "Proof",
-                              prefixIcon: const Icon(Icons.file_copy),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 20),
-                              border: OutlineInputBorder(
-                                // borderRadius: BorderRadius.circular(12.0),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter the proof";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-
-                        const SizedBox(height: 16.0),
-
-                        // Password Field
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              hintText: "Password",
-                              prefixIcon: const Icon(Icons.lock),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            obscureText: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please enter your password";
-                              }
-                              if (value.length < 6) {
-                                return "Password must be at least 6 characters long";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12.0, right: 20),
-                          child: TextFormField(
-                            controller: _confirmPasswordController,
-                            decoration: InputDecoration(
-                              hintText: "Confirm Password",
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                            obscureText: true,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Please confirm your password";
-                              }
-                              if (value != _passwordController.text) {
-                                return "Passwords do not match";
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 24.0),
-                        ElevatedButton(
-                            onPressed: () {
-                              register();
-                            },
-                            child: Text("Submit")),
-
-                        const SizedBox(height: 24.0),
-                      ],
+          child: Container(
+            width: 520,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 12,
+                  spreadRadius: 4,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    "Decorator Registration",
+                    style: GoogleFonts.lato(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                  ))
-            ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Image Picker
+                  SizedBox(
+                    height: 120,
+                    width: 120,
+                    child: pickedImage == null
+                        ? GestureDetector(
+                            onTap: handleImagePick,
+                            child: const Icon(
+                              Icons.add_a_photo,
+                              color: Color(0xFF0277BD),
+                              size: 50,
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: handleImagePick,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: pickedImage!.bytes != null
+                                  ? Image.memory(
+                                      Uint8List.fromList(pickedImage!.bytes!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(
+                                      File(pickedImage!.path!),
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Name Field
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: inputDecoration("Your Name", Icons.person),
+                    validator: (value) =>
+                        value!.isEmpty ? "Please enter your name" : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Email Field
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: inputDecoration("Your Email", Icons.email),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your email";
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return "Please enter a valid email address";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Address Field
+                  TextFormField(
+                    controller: _adrsController,
+                    decoration: inputDecoration("Your Address", Icons.home),
+                    validator: (value) =>
+                        value!.isEmpty ? "Please enter your address" : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Contact Field
+                  TextFormField(
+                    controller: _contactController,
+                    decoration:
+                        inputDecoration("Your Phone Number", Icons.phone),
+                    validator: (value) => value!.isEmpty
+                        ? "Please enter your phone number"
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // District & Place Dropdowns
+                  // District Dropdown
+                  // District Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedDist,
+                    hint: const Text("Select District"),
+                    decoration: dropdownDecoration().copyWith(
+                      prefixIcon: const Icon(Icons.location_city),
+                    ),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedDist = newValue;
+                      });
+                      fetchPlace(newValue);
+                    },
+                    items: _distList.map((district) {
+                      return DropdownMenuItem<String>(
+                        value: district['id'].toString(),
+                        child: Text(district['dist_name']),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+
+// Place Dropdown
+                  DropdownButtonFormField<String>(
+                    value: selectedPlace,
+                    hint: const Text("Select Place"),
+                    decoration: dropdownDecoration().copyWith(
+                      prefixIcon: const Icon(Icons.place),
+                    ),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedPlace = newValue;
+                      });
+                    },
+                    items: _placeList.map((place) {
+                      return DropdownMenuItem<String>(
+                        value: place['place_id'].toString(),
+                        child: Text(place['place_name']),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Proof Field
+                  TextFormField(
+                    readOnly: true,
+                    controller: _proofController,
+                    onTap: handleFilePick,
+                    decoration: inputDecoration("Proof", Icons.file_copy),
+                    validator: (value) =>
+                        value!.isEmpty ? "Please upload proof" : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password Field
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: inputDecoration("Password", Icons.lock),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please enter your password";
+                      }
+                      if (value.length < 6) {
+                        return "Password must be at least 6 characters";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Confirm Password Field
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration:
+                        inputDecoration("Confirm Password", Icons.lock_outline),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Please confirm your password";
+                      }
+                      if (value != _passwordController.text) {
+                        return "Passwords do not match";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Submit Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        register();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF7DBE9D), // pastel green
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        "Submit",
+                        style: GoogleFonts.lato(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+InputDecoration inputDecoration(String hint, IconData icon) {
+  return InputDecoration(
+    hintText: hint,
+    prefixIcon: Icon(icon, color: Colors.grey[700]),
+    filled: true,
+    fillColor: const Color(0xFFFDFDFD),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide.none,
+    ),
+  );
+}
+
+InputDecoration dropdownDecoration() {
+  return InputDecoration(
+    filled: true,
+    fillColor: const Color(0xFFFDFDFD),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide.none,
+    ),
+  );
 }

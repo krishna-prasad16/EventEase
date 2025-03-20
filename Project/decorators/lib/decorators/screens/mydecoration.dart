@@ -34,7 +34,7 @@ class _MydecorationState extends State<Mydecoration> {
   }
    Future<String?> photoUpload() async {
     try {
-      final bucketName = 'product'; // Replace with your bucket name
+      final bucketName = 'decoration'; // Replace with your bucket name
       final timestamp = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
       final fileExtension =
           pickedImage!.name.split('.').last; // Get the file extension
@@ -60,7 +60,7 @@ class _MydecorationState extends State<Mydecoration> {
     try {
       String? url = await photoUpload();
 
-      await Supabase.instance.client.from('tbl_product').insert({
+      await Supabase.instance.client.from('tbl_decorations').insert({
         'decoration_title': _titleController.text,
         
         'decoration_budget': double.tryParse(_budgetController.text) ?? 0.0,
@@ -70,7 +70,7 @@ class _MydecorationState extends State<Mydecoration> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Product inserted successfully!"),
+          content: Text(" Inserted successfully!"),
           backgroundColor: Colors.green,
         ),
       );
@@ -86,78 +86,124 @@ class _MydecorationState extends State<Mydecoration> {
   }
   
   @override
-  Widget build(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Center( // Add this to center the card
-      child: SizedBox(
-        width: 350, // 👈 Set desired width
-        // height: 500, // optional: set fixed height if you want
-        child: Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+  @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(80),
+      child: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 4,
+        automaticallyImplyLeading: false,
+        flexibleSpace: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Add Decorations",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: "Title"),
-                  ),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: "Description"),
-                    maxLines: 3,
-                  ),
-                  TextField(
-                    controller: _budgetController,
-                    decoration: const InputDecoration(labelText: "Budget"),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 120,
-                    width: 120,
-                    child: pickedImage == null
-                        ? GestureDetector(
-                            onTap: handleImagePick,
-                            child: Icon(
-                              Icons.add_a_photo,
-                              color: Color(0xFF0277BD),
-                              size: 50,
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  'assets/logo.png',
+                  width: 270,
+                  height: 60,
+                ),
+                Row(
+                  children: [
+                    TextButton(onPressed: () {}, child: Text("Home")),
+                    TextButton(onPressed: () {}, child: Text("My Booking")),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Mydecoration()),
+                        );
+                      },
+                      child: Text("My Decorations"),
+                    ),
+                    TextButton(onPressed: () {}, child: Text("Profile")),
+                    TextButton(onPressed: () {}, child: Text("Logout")),
+                  ],
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: SizedBox(
+          width: 450,
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Add Decorations",
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(labelText: "Title"),
+                    ),
+                    TextField(
+                      controller: _descriptionController,
+                      decoration:
+                          const InputDecoration(labelText: "Description"),
+                      maxLines: 3,
+                    ),
+                    TextField(
+                      controller: _budgetController,
+                      decoration: const InputDecoration(labelText: "Budget"),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 120,
+                      width: 120,
+                      child: pickedImage == null
+                          ? GestureDetector(
+                              onTap: handleImagePick,
+                              child: const Icon(
+                                Icons.add_a_photo,
+                                color: Color(0xFF0277BD),
+                                size: 50,
+                              ),
+                            )
+                          : GestureDetector(
+                              onTap: handleImagePick,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: pickedImage!.bytes != null
+                                    ? Image.memory(
+                                        Uint8List.fromList(
+                                            pickedImage!.bytes!),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.file(
+                                        File(pickedImage!.path!),
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
                             ),
-                          )
-                        : GestureDetector(
-                            onTap: handleImagePick,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: pickedImage!.bytes != null
-                                  ? Image.memory(
-                                      Uint8List.fromList(pickedImage!.bytes!),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.file(
-                                      File(pickedImage!.path!),
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: _submitProduct,
-                    child: const Text("Add"),
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: _submitProduct,
+                      child: const Text("Add"),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

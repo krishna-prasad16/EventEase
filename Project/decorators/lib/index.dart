@@ -12,10 +12,15 @@ class Index extends StatefulWidget {
   State<Index> createState() => _IndexState();
 }
 
-class _IndexState extends State<Index> {
+class _IndexState extends State<Index> with SingleTickerProviderStateMixin {
   final PageController _pageController1 = PageController();
   final PageController _pageController2 = PageController();
   final PageController _pageController3 = PageController();
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _positionAnimation;
+  late ScrollController _scrollController;
+  bool _isScrolled = false;
 
   int _currentPage1 = 0;
   int _currentPage2 = 0;
@@ -42,6 +47,33 @@ class _IndexState extends State<Index> {
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _positionAnimation = Tween<Offset>(
+      begin: Offset(0, 0),
+      end: Offset(-0.02, -0.02),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 50 && !_isScrolled) {
+        setState(() {
+          _isScrolled = true;
+        });
+      } else if (_scrollController.offset <= 50 && _isScrolled) {
+        setState(() {
+          _isScrolled = false;
+        });
+      }
+    });
 
     // Auto-slide for first slider
     Timer.periodic(Duration(seconds: 3), (Timer timer) {
@@ -130,6 +162,7 @@ class _IndexState extends State<Index> {
 
   @override
   void dispose() {
+    _controller.dispose();
     _pageController1.dispose();
     _pageController2.dispose();
     _pageController3.dispose();
@@ -139,73 +172,119 @@ class _IndexState extends State<Index> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar:
+          true, // 🔥 This is what makes it float over the hero section
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80), // Adjust height as needed
-        child: AppBar(
-          backgroundColor: Colors.white, // Change to your preferred color
-          elevation: 4,
-          automaticallyImplyLeading: false, // Hide default back button if any
-          flexibleSpace: SafeArea(
+        preferredSize: Size.fromHeight(70),
+        child: Container(
+          color: _isScrolled ? Colors.white : Colors.transparent,
+
+          // color: Colors.white, // This will force pure white
+          child: SafeArea(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset(
                     'assets/logo.png',
-                    width: 270,
-                    height: 60,
+                    width: 200,
+                    height: 130,
+                    fit: BoxFit.contain,
                   ),
+
+                  /// Action Buttons
                   Row(
                     children: [
-                       TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Login()),
-                          );
-                        },
-                        child: Text("Sign In",
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                      DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          icon:
-                              Icon(Icons.arrow_drop_down, color: Colors.black),
-                          dropdownColor: Colors.white,
-                          hint: Text("Sign Up",
-                              style: TextStyle(color: Colors.black)),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'Decorator',
-                              child: Text('Decorator'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Catering',
-                              child: Text('Catering'),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value == 'Decorator') {
+                      // Sign In Button inside container to match Sign Up size
+                      Container(
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        Decoreg()), // replace with your actual screen
+                                    builder: (context) => Login()),
                               );
-                            } else if (value == 'Catering') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                       Mydecoration()), // replace with your actual screen
-                              );
-                            }
-                          },
+                            },
+                            child: const Text(
+                              "Sign In",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                     
+
+                      const SizedBox(width: 12),
+
+                      // Sign Up Dropdown styled identically
+                      Container(
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            icon: const Icon(Icons.arrow_drop_down,
+                                color: Colors.black),
+                            dropdownColor: Colors.white,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            hint: const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Decorator',
+                                child: Text('Decorator'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Catering',
+                                child: Text('Catering'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value == 'Decorator') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Decoreg()),
+                                );
+                              } else if (value == 'Catering') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Mydecoration()),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
                     ],
                   )
                 ],
@@ -215,33 +294,54 @@ class _IndexState extends State<Index> {
         ),
       ),
       body: SingleChildScrollView(
+          controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // HEADER WITH NAVIGATION MENU
 
             // HERO SECTION
-            Container(
+            SizedBox(
               height: 600,
               width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/img.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.white.withOpacity(0.4),
-                child: Text(
-                  "Planning with Heart",
-                  style: GoogleFonts.tangerine(
-                    color: Colors.black,
-                    fontSize: 68,
-                    fontWeight: FontWeight.bold,
+              child: Stack(
+                children: [
+                  // Animated background image here 👇
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: FractionalTranslation(
+                          translation: _positionAnimation.value,
+                          child: Image.asset(
+                            'assets/img.jpg',
+                            height: 600,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  textAlign: TextAlign.center,
-                ),
+
+                  // Overlay + Your existing text 👇
+                  Container(
+                    height: 600,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    color: Colors.white.withOpacity(0.4),
+                    child: Text(
+                      "Planning with Heart",
+                      style: GoogleFonts.tangerine(
+                        color: Colors.black,
+                        fontSize: 68,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -409,13 +509,13 @@ class _IndexState extends State<Index> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Have you ever dreamed of planning the perfect event that will be remembered forever? Look no further than Meredith® Events, the top-notch event management company in Kerala, India, that has everything you need to make your occasion an unforgettable experience.",
+                            "Choose Meredith Event Management Company for your premium destination wedding in Kerala, India. Whether you dream of a beach wedding in Kerala or a resort celebration, we will bring it to life, infusing rich traditions.",
                             style: GoogleFonts.tangerine(
                                 color: Colors.black, fontSize: 27),
                           ),
                           SizedBox(height: 10),
                           Text(
-                            "We make everything from corporate event planning and personal celebrations to even small customized event packages absolutely memorable! Contact us today to learn more about our services and how we can help you organize the top event management in Kerala.",
+                            "We also offer venue selection assistance for an easier planning process. Our track record includes clients from India and abroad, making us your ideal partner for a dream destination wedding in Kerala, India.",
                             style: GoogleFonts.tangerine(
                                 color: Colors.black, fontSize: 27),
                           )
@@ -441,13 +541,13 @@ class _IndexState extends State<Index> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            "Have you ever dreamed of planning the perfect event that will be remembered forever? Look no further than Meredith® Events, the top-notch event management company in Kerala, India, that has everything you need to make your occasion an unforgettable experience.",
+                            "Celebrating over a decade of service, Meredith Events is a boutique event planning and design company that specializes in nonprofit fundraising, conferences, and annual celebrations. ",
                             style: GoogleFonts.tangerine(
                                 color: Colors.black, fontSize: 27),
                           ),
                           SizedBox(height: 10),
                           Text(
-                            "We make everything from corporate event planning and personal celebrations to even small customized event packages absolutely memorable! Contact us today to learn more about our services and how we can help you organize the top event management in Kerala.",
+                            "We are inspired by our clients’ mission, values, and goals to create memorable experiences and cultivate lasting impressions and impact. From spreadsheets to illustrated activations, let us help share your vision and build your dream event.",
                             style: GoogleFonts.tangerine(
                                 color: Colors.black, fontSize: 27),
                           )
