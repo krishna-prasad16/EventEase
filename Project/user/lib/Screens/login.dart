@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:user/Screens/Homepage.dart';
 import 'package:user/Screens/UserRegistration.dart';
+import 'package:user/main.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -10,10 +11,58 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    try {
+      final result = await supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (result.user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Homepage()),
+        );
+      } else {
+        _showError('Login failed. Please check your credentials.');
+      }
+    } catch (e) {
+      _showError('Login error: ${e.toString()}');
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF3FF), // Light blue background
+      backgroundColor: const Color(0xFFEAF3FF),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -21,14 +70,8 @@ class _LoginState extends State<Login> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo Section 
                 const Column(
                   children: [
-                    // Icon(
-                    //   Icons.nightlight_round,
-                    //   size: 40,
-                    //   color: Color(0xFF1C355E), // Dark blue
-                    // ),
                     SizedBox(height: 10),
                     Text(
                       'Meredith',
@@ -41,7 +84,6 @@ class _LoginState extends State<Login> {
                   ],
                 ),
                 const SizedBox(height: 40),
-                // Welcome Text Section
                 const Column(
                   children: [
                     Text(
@@ -54,7 +96,7 @@ class _LoginState extends State<Login> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "Let's get start",
+                      "Let's get started",
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF7D8CA2),
@@ -63,9 +105,9 @@ class _LoginState extends State<Login> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                // Input Fields Section
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
@@ -80,10 +122,12 @@ class _LoginState extends State<Login> {
                   child: Column(
                     children: [
                       TextFormField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           hintText: 'your email here',
                           hintStyle: const TextStyle(color: Color(0xFFB1C4D6)),
-                          prefixIcon: const Icon(Icons.email, color: Color(0xFFB1C4D6)),
+                          prefixIcon:
+                              const Icon(Icons.email, color: Color(0xFFB1C4D6)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -94,13 +138,15 @@ class _LoginState extends State<Login> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
+                        controller: _passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'your password here',
                           hintStyle: const TextStyle(color: Color(0xFFB1C4D6)),
-                          prefixIcon: const Icon(Icons.lock, color: Color(0xFFB1C4D6)),
-                          suffixIcon:
-                              const Icon(Icons.visibility, color: Color(0xFFB1C4D6)),
+                          prefixIcon:
+                              const Icon(Icons.lock, color: Color(0xFFB1C4D6)),
+                          suffixIcon: const Icon(Icons.visibility,
+                              color: Color(0xFFB1C4D6)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -113,13 +159,11 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Forgot Password Link
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Forgot Password functionality
-                      
+                      // Handle forgot password if needed
                     },
                     child: const Text(
                       'Forgot Password?',
@@ -128,13 +172,8 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Sign In Button
                 ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (Context)=>Homepage()),
-                    );
-                    // Sign In functionality
-                  },
+                  onPressed: _isLoading ? null : _signIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1C355E),
                     shape: RoundedRectangleBorder(
@@ -146,27 +185,25 @@ class _LoginState extends State<Login> {
                     ),
                     shadowColor: Colors.black.withOpacity(0.1),
                   ),
-                  child: const Text(
-                    'Sign In',
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Sign In',
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
                 ),
                 const SizedBox(height: 20),
-                // Sign Up Link
                 TextButton(
                   onPressed: () {
-                    // Sign Up functionality
-                  },
-                  child: GestureDetector(onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (Context)=>Registration()),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Registration()),
                     );
-                  },//vere oru pagilekk link cheyyan
-                    child: const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Color(0xFF7D8CA2),
-                      ),
-                    ),
+                  },
+                  child: const Text(
+                    'Sign Up',
+                    style: TextStyle(color: Color(0xFF7D8CA2)),
                   ),
                 ),
               ],

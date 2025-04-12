@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:decorators/decorators/screens/mybooking.dart';
 import 'package:decorators/decorators/screens/mydecoration.dart';
 import 'package:decorators/decorators/screens/viewdecoration.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +12,28 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomepageState extends State<Homepage>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController1 = PageController();
   final PageController _pageController2 = PageController();
   final PageController _pageController3 = PageController();
 
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _positionAnimation;
+  late ScrollController _scrollController;
+  bool _isScrolled = false;
+
   int _currentPage1 = 0;
   int _currentPage2 = 0;
   int _currentPage3 = 0;
+  int _currentImageIndex = 0;
+
+  final List<String> images = [
+    'assets/h3.jpeg',
+    'assets/h6.jpg',
+    'assets/h7.jpg',
+  ];
 
   final List<String> slider1Images = [
     'assets/img1.jpeg',
@@ -41,6 +56,46 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 8),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _positionAnimation = Tween<Offset>(
+      begin: Offset(0, 0),
+      end: Offset(-0.02, -0.02),
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Future.delayed(Duration.zero, () {
+          setState(() {
+            _currentImageIndex = (_currentImageIndex + 1) % images.length;
+          });
+          _controller.reset();
+          _controller.forward();
+        });
+      }
+    });
+    _controller.forward();
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 50 && !_isScrolled) {
+        setState(() {
+          _isScrolled = true;
+        });
+      } else if (_scrollController.offset <= 50 && _isScrolled) {
+        setState(() {
+          _isScrolled = false;
+        });
+      }
+    });
 
     // Auto-slide for first slider
     Timer.periodic(Duration(seconds: 3), (Timer timer) {
@@ -129,6 +184,7 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void dispose() {
+    _controller.dispose();
     _pageController1.dispose();
     _pageController2.dispose();
     _pageController3.dispose();
@@ -138,78 +194,128 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // HEADER WITH NAVIGATION MENU
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+      extendBodyBehindAppBar:
+          true, // 🔥 This is what makes it float over the hero section
+      backgroundColor: Colors.white,
+
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(70),
+        child: Container(
+          color: _isScrolled ? Colors.white : Colors.transparent,
+
+          // color: Colors.white, // This will force pure white
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset(
                     'assets/logo.png',
-                    width: 270,
-                    height: 60,
+                    width: 200,
+                    height: 130,
+                    fit: BoxFit.contain,
                   ),
-                  Row(
-                    children: [
-                      TextButton(onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Homepage()),
-                          );
-                      }, child: Text("Home")),
-                      // TextButton(onPressed: () {
-                      //   Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(builder: (context) => Mydecoration()),
-                      //     );
-                      // }, child: Text("My Booking")),
-                      TextButton(onPressed: () {
+                  SizedBox(
+                    width: 700,
+                  ),
+                  TextButton(
+                      onPressed: () {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => Mydecoration()),
-                          );
-                      }, child: Text("My Decoration")),
+                          context,
+                          MaterialPageRoute(builder: (context) => Homepage()),
+                        );
+                      },
+                      child: Text("Home")),
+                  // TextButton(onPressed: () {
+                  //   Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => Mydecoration()),
+                  //     );
+                  // }, child: Text("My Booking")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Mydecoration()),
+                        );
+                      },
+                      child: Text("My Decoration")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ViewDecoration()),
+                        );
+                      },
+                      child: Text("View Decorations")),
                       TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ViewDecoration()),
-                          );
-                          }, child: Text("View Decorations")),
-                      TextButton(onPressed: () {}, child: Text("Profile")),
-                      TextButton(onPressed: () {}, child: Text("Logout")),
-                    ],
-                  )
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Mybooking()),
+                        );
+                      },
+                      child: Text("My Booking")),
+                  TextButton(onPressed: () {}, child: Text("Profile")),
+                  TextButton(onPressed: () {}, child: Text("Logout")),
                 ],
               ),
             ),
-
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             // HERO SECTION
-            Container(
+            SizedBox(
               height: 600,
               width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/img.jpg'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.white.withOpacity(0.4),
-                child: Text(
-                  "Planning with Heart",
-                  style: GoogleFonts.tangerine(
-                    color: Colors.black,
-                    fontSize: 68,
-                    fontWeight: FontWeight.bold,
+              child: Stack(
+                children: [
+                  // Animated background image here 👇
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: FractionalTranslation(
+                          translation: _positionAnimation.value,
+                          child: Image.asset(
+                            images[_currentImageIndex],
+                            height: 600,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  textAlign: TextAlign.center,
-                ),
+
+                  // Overlay + Your existing text 👇
+                  Container(
+                    height: 600,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.4),
+                    child: Text(
+                      "Planning with Heart",
+                      style: GoogleFonts.tangerine(
+                        color: Colors.white,
+                        fontSize: 68,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -483,7 +589,7 @@ class _HomepageState extends State<Homepage> {
               ],
             ),
             SizedBox(
-              height: 300,
+              height: 100,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -509,35 +615,54 @@ class _HomepageState extends State<Homepage> {
                 ),
 
                 // Second Column (Middle)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Container(
+                  height: 25,
+                  width: 1,
+                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  color: Colors.brown[300],
+                ),
+
+                // Second Column (Email)
+                Row(
                   children: [
-                   
+                    Icon(Icons.email_outlined, size: 20, color: Colors.brown),
+                    SizedBox(width: 8),
                     Text(
-                      "Email: meredith@gmail.com",
-                      style: TextStyle(fontStyle: FontStyle.italic),
+                      "meredith@gmail.com",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 15,
+                        color: Colors.brown[700],
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Divider
+                Container(
+                  height: 25,
+                  width: 1,
+                  margin: EdgeInsets.symmetric(horizontal: 25),
+                  color: Colors.brown[300],
+                ),
+
+                // Third Column (Copyright)
+                Row(
+                  children: [
+                    Icon(Icons.copyright, size: 18, color: Colors.brown),
+                    SizedBox(width: 8),
+                    Text(
+                      "2035 Meredith Weddings",
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 15,
+                        color: Colors.brown[700],
+                      ),
                     ),
                   ],
                 ),
 
                 // Vertical Divider
-                Container(
-                  height: 20,
-                  width: 1,
-                  margin: EdgeInsets.symmetric(horizontal: 15),
-                  color: Colors.brown,
-                ),
-
-                // Third Column (Right)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "© 2035 by Meredith Weddings.",
-                      style: TextStyle(fontStyle: FontStyle.italic),
-                    ),
-                  ],
-                ),
               ],
             ),
             SizedBox(

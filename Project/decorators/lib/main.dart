@@ -3,6 +3,8 @@
 
 import 'package:decorators/decorators/screens/homepage.dart';
 import 'package:decorators/index.dart';
+import 'package:decorators/login.dart';
+// import 'package:decorators/index.dart';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,6 +26,23 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(debugShowCheckedModeBanner: false, 
-    home: Index());
+    home:Index());
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Check if the user is logged in
+    final session = supabase.auth.currentSession;
+
+    // Navigate to the appropriate screen based on the authentication state
+    if (session != null) {
+      return Homepage(); // Replace with your home screen widget
+    } else {
+      return Index(); // Replace with your auth page widget
+    }
   }
 }

@@ -30,10 +30,9 @@ class _IndexState extends State<Index> with SingleTickerProviderStateMixin {
 
   final List<String> images = [
     'assets/h3.jpeg',
-  'assets/h6.jpg',
-  'assets/h7.jpg',
-  
-];
+    'assets/h6.jpg',
+    'assets/h7.jpg',
+  ];
 
   final List<String> slider1Images = [
     'assets/img1.jpeg',
@@ -74,12 +73,12 @@ class _IndexState extends State<Index> with SingleTickerProviderStateMixin {
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         Future.delayed(Duration.zero, () {
-        setState(() {
-          _currentImageIndex = (_currentImageIndex + 1) % images.length;
+          setState(() {
+            _currentImageIndex = (_currentImageIndex + 1) % images.length;
+          });
+          _controller.reset();
+          _controller.forward();
         });
-        _controller.reset();
-        _controller.forward();
-      });
       }
     });
 
@@ -317,7 +316,7 @@ class _IndexState extends State<Index> with SingleTickerProviderStateMixin {
         ),
       ),
       body: SingleChildScrollView(
-          controller: _scrollController,
+        controller: _scrollController,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -641,78 +640,78 @@ class _IndexState extends State<Index> with SingleTickerProviderStateMixin {
               height: 100,
             ),
             Container(
-  width: double.infinity,
-  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-  color: Colors.brown.withOpacity(0.05), // Soft background tint
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      // First Column (Location)
-      Row(
-        children: [
-          Icon(Icons.location_on, size: 20, color: Colors.brown),
-          SizedBox(width: 8),
-          Text(
-            "Ernakulam, Kerala",
-            style: TextStyle(
-              fontStyle: FontStyle.italic,
-              fontSize: 15,
-              color: Colors.brown[700],
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+              color: Colors.brown.withOpacity(0.05), // Soft background tint
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // First Column (Location)
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, size: 20, color: Colors.brown),
+                      SizedBox(width: 8),
+                      Text(
+                        "Ernakulam, Kerala",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15,
+                          color: Colors.brown[700],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Divider
+                  Container(
+                    height: 25,
+                    width: 1,
+                    margin: EdgeInsets.symmetric(horizontal: 25),
+                    color: Colors.brown[300],
+                  ),
+
+                  // Second Column (Email)
+                  Row(
+                    children: [
+                      Icon(Icons.email_outlined, size: 20, color: Colors.brown),
+                      SizedBox(width: 8),
+                      Text(
+                        "meredith@gmail.com",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15,
+                          color: Colors.brown[700],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Divider
+                  Container(
+                    height: 25,
+                    width: 1,
+                    margin: EdgeInsets.symmetric(horizontal: 25),
+                    color: Colors.brown[300],
+                  ),
+
+                  // Third Column (Copyright)
+                  Row(
+                    children: [
+                      Icon(Icons.copyright, size: 18, color: Colors.brown),
+                      SizedBox(width: 8),
+                      Text(
+                        "2035 Meredith Weddings",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 15,
+                          color: Colors.brown[700],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-
-      // Divider
-      Container(
-        height: 25,
-        width: 1,
-        margin: EdgeInsets.symmetric(horizontal: 25),
-        color: Colors.brown[300],
-      ),
-
-      // Second Column (Email)
-      Row(
-        children: [
-          Icon(Icons.email_outlined, size: 20, color: Colors.brown),
-          SizedBox(width: 8),
-          Text(
-            "meredith@gmail.com",
-            style: TextStyle(
-              fontStyle: FontStyle.italic,
-              fontSize: 15,
-              color: Colors.brown[700],
-            ),
-          ),
-        ],
-      ),
-
-      // Divider
-      Container(
-        height: 25,
-        width: 1,
-        margin: EdgeInsets.symmetric(horizontal: 25),
-        color: Colors.brown[300],
-      ),
-
-      // Third Column (Copyright)
-      Row(
-        children: [
-          Icon(Icons.copyright, size: 18, color: Colors.brown),
-          SizedBox(width: 8),
-          Text(
-            "2035 Meredith Weddings",
-            style: TextStyle(
-              fontStyle: FontStyle.italic,
-              fontSize: 15,
-              color: Colors.brown[700],
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
-),
 
             // SizedBox(
             //   height: 150,

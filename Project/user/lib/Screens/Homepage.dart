@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:user/Screens/login.dart';
+import 'package:user/Screens/mybooking.dart';
 import 'package:user/Screens/viewdecorations.dart';
 
 class Homepage extends StatefulWidget {
@@ -101,7 +101,7 @@ class _HomepageState extends State<Homepage> {
         backgroundColor: Colors.white,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(70), // Increase AppBar height
-          child:AppBar(
+          child: AppBar(
             backgroundColor: Colors.white, // Removes default back arrow
             // leading: IconButton(
             //   icon: Icon(Icons.menu),
@@ -117,21 +117,20 @@ class _HomepageState extends State<Homepage> {
                     right: 16.0, top: 30), // Adjust as needed
                 child: Image.asset(
                   "assets/logo.png",
-                  height: 40, 
-                  width: 130,// Adjust size as needed
+                  height: 40,
+                  width: 130, // Adjust size as needed
                 ),
               ),
             ],
-          ),  
-
-
+          ),
         ),
         drawer: Drawer(
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
               DrawerHeader(
-                decoration: BoxDecoration(color: const Color.fromARGB(255, 187, 195, 201)),
+                decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 187, 195, 201)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,7 +155,13 @@ class _HomepageState extends State<Homepage> {
               ListTile(
                 leading: Icon(Icons.list),
                 title: Text('My Booking'),
-                onTap: () {},
+                onTap: () {
+                   Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Mybooking()),
+                              );
+                },
               ),
               ListTile(
                 leading: Icon(Icons.settings),

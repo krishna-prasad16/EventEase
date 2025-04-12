@@ -25,7 +25,7 @@ class _MoreDecorationsState extends State<MoreDecorations> {
   Future<void> _fetchProducts() async {
     try {
       final response =
-          await Supabase.instance.client.from('tbl_decorations').select("*, tbl_decorators(*)").eq("decorator_id", "widget_id");
+          await Supabase.instance.client.from('tbl_decorations').select("*, tbl_decorators(*)").eq("decorator_id", widget.id);
           print(response);
       setState(() {
         products = List<Map<String, dynamic>>.from(response);
@@ -39,7 +39,7 @@ class _MoreDecorationsState extends State<MoreDecorations> {
     }
   }
 
-  @override
+ 
 
   @override
   Widget build(BuildContext context) {
