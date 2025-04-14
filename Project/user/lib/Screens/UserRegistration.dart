@@ -194,270 +194,230 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE3EAFB),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40.0),
-                const Text(
-                  "Meredith",
-                  style: TextStyle(
-                    fontSize: 28.0,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF3A4D8F),
-                  ),
+  backgroundColor: const Color(0xFFEAF3FF), // pastel blue background
+  body: Center(
+    child: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20.0),
+              const Text(
+                "Meredith",
+                style: TextStyle(
+                  fontSize: 28.0,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1C355E),
                 ),
-                const SizedBox(height: 32.0),
-                const Text(
-                  "Welcome",
-                  style: TextStyle(
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF3A4D8F),
-                  ),
+              ),
+              const SizedBox(height: 20.0),
+              const Text(
+                "Welcome",
+                style: TextStyle(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1C355E),
                 ),
-                const SizedBox(height: 24.0),
-                
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      GestureDetector(
-                        onTap: _pickImage,
-                        child: Container(
-                          height: 100,
-                          width: 100,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            image: _selectedImage != null
-                                ? DecorationImage(
-                                    image: FileImage(_selectedImage!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : null,
-                          ),
-                          child: _selectedImage == null
-                              ? const Icon(
-                                  Icons.camera_alt,
-                                  size: 40,
-                                  color: Color(0xFF3A4D8F),
+              ),
+              const SizedBox(height: 24.0),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFFF3F6FB),
+                          image: _selectedImage != null
+                              ? DecorationImage(
+                                  image: FileImage(_selectedImage!),
+                                  fit: BoxFit.cover,
                                 )
                               : null,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: _selectedImage == null
+                            ? const Icon(
+                                Icons.camera_alt,
+                                size: 40,
+                                color: Color(0xFFB1C4D6),
+                              )
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildInput(_nameController, Icons.person, "Your Name"),
+                    const SizedBox(height: 16.0),
+                    _buildInput(_emailController, Icons.email, "Your Email",
+                        isEmail: true),
+                    const SizedBox(height: 16.0),
+                    _buildDropdown<District>(
+                      hint: "Select District",
+                      icon: Icons.location_city,
+                      items: _districts,
+                      value: _selectedDistrict,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedDistrict = value;
+                          _selectedPlace = null;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildDropdown<Place>(
+                      hint: "Select Place",
+                      icon: Icons.place,
+                      items: _places,
+                      value: _selectedPlace,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedPlace = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16.0),
+                    _buildInput(_passwordController, Icons.lock, "Password",
+                        isPassword: true),
+                    const SizedBox(height: 16.0),
+                    _buildInput(_confirmPasswordController, Icons.lock_outline,
+                        "Confirm Password",
+                        isPassword: true),
+                    const SizedBox(height: 24.0),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _register,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFD2B48C), // light brown
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        shadowColor: Colors.black.withOpacity(0.1),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Sign Up",
+                              style: TextStyle(
+                                  fontSize: 16.0, color: Colors.white),
+                            ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Login()),
+                        );
+                      },
+                      child: const Text(
+                        "Already have an account? Sign In",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF7D8CA2),
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 16.0),
-
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          hintText: "Your Name",
-                          prefixIcon: const Icon(Icons.person),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please enter your name";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          hintText: "Your Email",
-                          prefixIcon: const Icon(Icons.email),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please enter your email";
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return "Please enter a valid email address";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // District Dropdown
-                      DropdownButtonFormField<District>(
-                        decoration: InputDecoration(
-                          hintText: "Select District",
-                          prefixIcon: const Icon(Icons.location_city),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: _districts.map((District district) {
-                          return DropdownMenuItem<District>(
-                            value: district,
-                            child: Text(district.name),
-                          );
-                        }).toList(),
-                        onChanged: (District? newValue) {
-                          setState(() {
-                            _selectedDistrict = newValue;
-                            _selectedPlace = null; // Reset place when district changes
-                          });
-                        },
-                        value: _selectedDistrict,
-                        validator: (value) {
-                          if (value == null) {
-                            return "Please select a district";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      // Place Dropdown
-                      DropdownButtonFormField<Place>(
-                        decoration: InputDecoration(
-                          hintText: "Select Place",
-                          prefixIcon: const Icon(Icons.place),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        items: _places.map((Place place) {
-                          return DropdownMenuItem<Place>(
-                            value: place,
-                            child: Text(place.name),
-                          );
-                        }).toList(),
-                        onChanged: (Place? newValue) {
-                          setState(() {
-                            _selectedPlace = newValue;
-                          });
-                        },
-                        value: _selectedPlace,
-                        validator: (value) {
-                          if (value == null) {
-                            return "Please select a place";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: InputDecoration(
-                          hintText: "Password",
-                          prefixIcon: const Icon(Icons.lock),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please enter your password";
-                          }
-                          if (value.length < 6) {
-                            return "Password must be at least 6 characters long";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        decoration: InputDecoration(
-                          hintText: "Confirm Password",
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please confirm your password";
-                          }
-                          if (value != _passwordController.text) {
-                            return "Passwords do not match";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 24.0),
-
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _register,
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                          backgroundColor: const Color(0xFF3A4D8F),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                "Sign Up",
-                                style: TextStyle(fontSize: 16.0),
-                              ),
-                      ),
-                      const SizedBox(height: 16.0),
-
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Login()),
-                          );
-                        },
-                        child: const Text(
-                          "Already have an account? Sign In",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color(0xFF3A4D8F),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
+
   }
+}
+Widget _buildInput(TextEditingController controller, IconData icon, String hint,
+    {bool isPassword = false, bool isEmail = false}) {
+  return TextFormField(
+    controller: controller,
+    decoration: InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon, color: Color(0xFFB1C4D6)),
+      filled: true,
+      fillColor: const Color(0xFFF3F6FB),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+    ),
+    obscureText: isPassword,
+    keyboardType:
+        isEmail ? TextInputType.emailAddress : TextInputType.text,
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return "Please enter ${hint.toLowerCase()}";
+      }
+      if (isEmail &&
+          !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+        return "Please enter a valid email address";
+      }
+      return null;
+    },
+  );
+}
+
+Widget _buildDropdown<T>({
+  required String hint,
+  required IconData icon,
+  required List<T> items,
+  required T? value,
+  required Function(T?) onChanged,
+}) {
+  return DropdownButtonFormField<T>(
+    decoration: InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(icon, color: Color(0xFFB1C4D6)),
+      filled: true,
+      fillColor: const Color(0xFFF3F6FB),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12.0),
+        borderSide: BorderSide.none,
+      ),
+    ),
+    items: items.map((T item) {
+      return DropdownMenuItem<T>(
+        value: item,
+        child: Text(item.toString()),
+      );
+    }).toList(),
+    onChanged: onChanged,
+    value: value,
+    validator: (value) {
+      if (value == null) {
+        return "Please select ${hint.toLowerCase()}";
+      }
+      return null;
+    },
+  );
 }
