@@ -209,6 +209,7 @@ class _BookingdetailsState extends State<Bookingdetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
         title: const Text(
           'Booking Details',

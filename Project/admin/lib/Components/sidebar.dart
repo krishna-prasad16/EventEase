@@ -10,7 +10,7 @@ class SideBar extends StatefulWidget {
 
 class _SideBarState extends State<SideBar> {
   final List<String> pages = [
-   
+    "Home",
     "profile",
     " Decorators",
     " Catering",
@@ -21,6 +21,7 @@ class _SideBarState extends State<SideBar> {
   ];
   final List<IconData> icons = [
     
+    Icons.home,
     Icons.person,
     Icons.admin_panel_settings_sharp,
     Icons.food_bank,

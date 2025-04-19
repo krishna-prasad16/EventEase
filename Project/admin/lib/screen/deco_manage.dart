@@ -80,6 +80,43 @@ class _DecoManageState extends State<DecoManage> {
     fetchData();
   }
 
+   void showImage(String image) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.all(20),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4,
+                  child: Image.network(
+                    image,
+                    height: 500,
+                    width: 600,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 10,
+                right: 10,
+                child: IconButton(
+                  icon: Icon(Icons.close, color: Colors.black),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   Widget buildTable(String title, List<Map<String, dynamic>> data) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 16.0),
@@ -122,10 +159,16 @@ class _DecoManageState extends State<DecoManage> {
                 DataCell(Text(entry.value['dec_contact'])),
                 DataCell(Text(entry.value['dec_address'])),
                 DataCell(
+                  onTap: () {
+                    showImage(entry.value['dec_proof']);
+                  },
                   CircleAvatar(
                       backgroundImage: NetworkImage(entry.value['dec_proof'])),
                 ),
                 DataCell(
+                  onTap: () {
+                    showImage(entry.value['dec_img']);
+                  },
                   CircleAvatar(
                       backgroundImage: NetworkImage(entry.value['dec_img'])),
                 ),

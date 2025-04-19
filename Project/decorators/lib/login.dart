@@ -1,4 +1,5 @@
 import 'package:decorators/cat_reg.dart';
+import 'package:decorators/catering/screens/catHomepage.dart';
 import 'package:decorators/main.dart';
 import 'package:decorators/deco_reg.dart';
 import 'package:decorators/decorators/screens/homepage.dart';
@@ -20,16 +21,47 @@ class LoginState extends State<Login> {
   Future<void> signIN() async {
     try {
       final response = await supabase.auth.signInWithPassword(
-          password: _passwordController.text, email: _emailController.text);
-      if (response != null) {
+        password: _passwordController.text,
+        email: _emailController.text,
+      );
+      final user = response.user;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Invalid email or password'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+      final dec = await supabase.from('tbl_decorators').select().eq('id', user.id).maybeSingle();
+      final catering = await supabase.from('tbl_catering').select().eq('id', user.id).maybeSingle();
+      if (dec != null && dec.isNotEmpty) {
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Homepage(),
-            ));
+          context,
+          MaterialPageRoute(builder: (context) => DecHomepage()),
+        );
+      } else if (catering != null && catering.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Cathomepage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User not found'),
+            duration: Duration(seconds: 2),
+          ),
+        );
       }
     } catch (e) {
       print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login failed: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 

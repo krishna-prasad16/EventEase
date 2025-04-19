@@ -99,7 +99,7 @@ class _CatRegState extends State<CatReg> {
       final filePath = "$uid-${file.name}";
       await supabase.storage.from(bucketName).uploadBinary(
             filePath,
-            pickedImage!.bytes!, // Use file.bytes for Flutter Web
+            file.bytes!, // Use file.bytes for Flutter Web
           );
       final publicUrl =
           supabase.storage.from(bucketName).getPublicUrl(filePath);

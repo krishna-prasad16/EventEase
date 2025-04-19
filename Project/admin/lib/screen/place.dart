@@ -23,6 +23,7 @@ class _ManageplaceState extends State<Manageplace>
       String place = placeController.text;
       await supabase.from('tbl_place').insert({
         'place_name': place,
+        'dist_id': selectedDist,
       });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

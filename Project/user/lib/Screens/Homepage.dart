@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:user/Screens/catrequest.dart';
+
 import 'package:user/Screens/mybooking.dart';
+import 'package:user/Screens/searchcatering.dart';
 import 'package:user/Screens/viewdecorations.dart';
 
 class Homepage extends StatefulWidget {
+  
   const Homepage({super.key});
 
   @override
@@ -230,7 +234,7 @@ class _HomepageState extends State<Homepage> {
                       "Unlock Your Dream Destination Wedding in Kerala",
                       style: GoogleFonts.cormorantGaramond(
                         color: Colors.black,
-                        fontSize: 27,
+                        fontSize: 29,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -241,14 +245,14 @@ class _HomepageState extends State<Homepage> {
                       "Choose Meredith Event Management Company for your premium destination wedding in Kerala, India. Whether you dream of a beach wedding in Kerala or a resort celebration, we will bring it to life, infusing rich traditions.",
                       style: GoogleFonts.cormorantGaramond(
                         color: Colors.black,
-                        fontSize: 15,
+                        fontSize: 17,
                       ),
                     ),
                     Text(
                       "We also offer venue selection assistance for an easier planning process. Our track record includes clients from India and abroad, making us your ideal partner for a dream destination wedding in Kerala, India.",
                       style: GoogleFonts.cormorantGaramond(
                         color: Colors.black,
-                        fontSize: 15,
+                        fontSize: 17,
                       ),
                     ),
                   ],
@@ -406,7 +410,7 @@ class _HomepageState extends State<Homepage> {
                       "Meredith Event Management is a certified ISO 9001:2015 event management company based in the state of Kerala, South India. We offer excellent, comprehensive event management services, including personal event planning, corporate events and conferences, private parties, trade exhibitions, virtual event management services, and entertaining stage shows all over Kerala. Feel free to contact us.",
                       style: GoogleFonts.cormorantGaramond(
                         color: Colors.black,
-                        fontSize: 15,
+                        fontSize: 17,
                       ),
                     ),
                   ],
@@ -462,7 +466,7 @@ class _HomepageState extends State<Homepage> {
                             "If you want to make a statement at your next corporate event, partner with "
                             "Melodia Event Management Company in Kerala.",
                             style: GoogleFonts.openSans(
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Colors.black87,
                             ),
                           ),
@@ -549,7 +553,7 @@ class _HomepageState extends State<Homepage> {
                           Text(
                             "Have you ever dreamed of planning the perfect wedding event to be remembered forever?",
                             style: GoogleFonts.openSans(
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Colors.black87,
                             ),
                           ),
@@ -559,7 +563,7 @@ class _HomepageState extends State<Homepage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => Viewdecorations()),
+                                    builder: (context) => Searchcatering()),
                               );
                             },
                             child: Row(
@@ -656,7 +660,7 @@ class _HomepageState extends State<Homepage> {
                         "Planning a full event has never been easier! Meredith® Event Management, an ISO 9001:2015 Certified Event Management Company based in Kerala state, India, offers a wide range of services to make your events stress-free and memorable across Kerala. From premium corporate events and destination wedding planning to small-scale birthday parties and private gatherings, you can be sure we have it all covered. With offices in Kochi, Thrissur, Calicut, and Trivandrum, we also specialize in venue selections and hospitality services. We primarily serve Keralites, Malayalees, and those looking to plan destination events in Kerala. We exclusively operate within Kerala. Whether you are planning a destination wedding event or a local celebration in Kerala, India, Melodia® is here to help.",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 15,
                           height: 1.5,
                         ),
                       ),

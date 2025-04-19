@@ -6,6 +6,7 @@ import 'package:user/Screens/sendrqst.dart';
 
 class Decodetails extends StatefulWidget {
   final Map<String, dynamic> decoration;
+ 
   const Decodetails({super.key, required this.decoration});
 
   @override

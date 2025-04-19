@@ -5,6 +5,7 @@ import 'package:admin/screen/complaints.dart';
 import 'package:admin/screen/deco_manage.dart';
 import 'package:admin/screen/district.dart';
 import 'package:admin/screen/event_type.dart';
+import 'package:admin/screen/home.dart';
 import 'package:admin/screen/place.dart';
 import 'package:admin/screen/profile.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +22,10 @@ class _AdminHomeState extends State<AdminHome> {
 
   final List<Widget> _pages = [
     // const Center(child: Text('Dashboard Content')),
+    Home(),
     Profile(),
     DecoManage(),
-    Catering(),
+    CaterManage(),
     ManageDistrict(),
     Manageplace(),
     ManageEvent(),

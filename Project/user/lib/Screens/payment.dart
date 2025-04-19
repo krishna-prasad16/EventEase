@@ -6,21 +6,39 @@ import 'package:user/main.dart';
 class PaymentGatewayScreen extends StatefulWidget {
   final int id;
   final int amt;
-  const PaymentGatewayScreen({super.key, required this.id, required this.amt});
+  final bool isCatering; // Add this flag
+
+  const PaymentGatewayScreen({
+    super.key,
+    required this.id,
+    required this.amt,
+    this.isCatering = false, // Default to false for decoration
+  });
 
   @override
   _PaymentGatewayScreenState createState() => _PaymentGatewayScreenState();
 }
 
 class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
-  
   Future<void> checkout() async {
     try {
+      if (widget.isCatering) {
+        // Update catering booking
+        await supabase.from('tbl_cateringbooking').update({
+          'booking_status': 3,
+          'booking_total': widget.amt,
+        }).eq('id', widget.id);
+      } else {
+        // Update decoration booking
         await supabase.from('tbl_decorationbooking').update({
           'decbook_status': 3,
           'decbook_totalamnt': widget.amt,
         }).eq('decbook_id', widget.id);
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => PaymentSuccessPage(),));
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => PaymentSuccessPage()),
+      );
     } catch (e) {
       print(e);
     }
@@ -98,35 +116,23 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                           if (value == null || value.isEmpty) {
                             return 'This field is required';
                           }
-
-                          // Check if the input matches the MM/YY format
                           if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value)) {
                             return 'Invalid expiry date format';
                           }
-
-                          // Split the input into month and year
                           final List<String> parts = value.split('/');
                           final int month = int.tryParse(parts[0]) ?? 0;
                           final int year = int.tryParse(parts[1]) ?? 0;
-
-                          // Get the current date
                           final DateTime now = DateTime.now();
-                          final int currentYear =
-                              now.year % 100; // Get last two digits of the year
+                          final int currentYear = now.year % 100;
                           final int currentMonth = now.month;
-
-                          // Validate the month and year
                           if (month < 1 || month > 12) {
                             return 'Invalid month';
                           }
-
-                          // Check if the year is in the past
                           if (year < currentYear ||
                               (year == currentYear && month < currentMonth)) {
                             return 'Card has expired';
                           }
-
-                          return null; // Valid expiry date
+                          return null;
                         },
                         cvvValidator: (String? value) {
                           if (value == null || value.isEmpty) {
@@ -156,7 +162,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                         ),
                         onPressed: () {
                           if (formKey.currentState!.validate()) {
-                           checkout();
+                            checkout();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

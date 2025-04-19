@@ -1,9 +1,6 @@
-
-
-
 import 'package:decorators/decorators/screens/homepage.dart';
 import 'package:decorators/index.dart';
-import 'package:decorators/login.dart';
+// import 'package:decorators/login.dart';
 // import 'package:decorators/index.dart';
 
 import 'package:flutter/material.dart';
@@ -40,7 +37,7 @@ class AuthWrapper extends StatelessWidget {
 
     // Navigate to the appropriate screen based on the authentication state
     if (session != null) {
-      return Homepage(); // Replace with your home screen widget
+      return DecHomepage(); // Replace with your home screen widget
     } else {
       return Index(); // Replace with your auth page widget
     }
