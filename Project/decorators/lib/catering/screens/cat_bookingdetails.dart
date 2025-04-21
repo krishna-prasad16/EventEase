@@ -288,6 +288,19 @@ class _CatBookingdetailsState extends State<CatBookingdetails> {
                                       ),
                                       child: const Text('Mark as Completed', style: TextStyle(fontSize: 12)),
                                     ),
+                                  if (booking!['booking_status'] == 3)
+                                    ElevatedButton(
+                                      onPressed: markWorkAsCompleted,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text('Mark as Completed', style: TextStyle(fontSize: 12)),
+                                    ),
                                 ],
                               ),
                             ],

@@ -7,7 +7,7 @@ import 'package:admin/screen/district.dart';
 import 'package:admin/screen/event_type.dart';
 import 'package:admin/screen/home.dart';
 import 'package:admin/screen/place.dart';
-import 'package:admin/screen/profile.dart';
+
 import 'package:flutter/material.dart';
 
 class AdminHome extends StatefulWidget {
@@ -23,7 +23,6 @@ class _AdminHomeState extends State<AdminHome> {
   final List<Widget> _pages = [
     // const Center(child: Text('Dashboard Content')),
     Home(),
-    Profile(),
     DecoManage(),
     CaterManage(),
     ManageDistrict(),
@@ -46,7 +45,6 @@ class _AdminHomeState extends State<AdminHome> {
         body: Stack(
           children: [
             Container(
-              
               child: Row(
                 children: [
                   Expanded(
@@ -56,7 +54,7 @@ class _AdminHomeState extends State<AdminHome> {
                       )),
                   Expanded(
                     flex: 5,
-                    child: Column(
+                    child: ListView(
                       children: [
                         Appbar1(),
                         _pages[_selectedIndex],

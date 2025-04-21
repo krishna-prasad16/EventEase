@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:user/Screens/catrequest.dart';
+import 'package:user/Screens/login.dart';
+// import 'package:user/Screens/catrequest.dart';
 
 import 'package:user/Screens/mybooking.dart';
+import 'package:user/Screens/profile.dart';
 import 'package:user/Screens/searchcatering.dart';
 import 'package:user/Screens/viewdecorations.dart';
+import 'package:user/main.dart';
 
 class Homepage extends StatefulWidget {
-  
   const Homepage({super.key});
 
   @override
@@ -30,6 +32,9 @@ class _HomepageState extends State<Homepage> {
     'assets/img1.jpeg',
     'assets/img.jpg',
   ];
+
+  Map<String, dynamic>? userData;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +48,23 @@ class _HomepageState extends State<Homepage> {
     Timer.periodic(Duration(seconds: 4), (Timer timer) {
       if (mounted) _nextPage2();
     });
+
+    fetchUserData();
+  }
+
+  Future<void> fetchUserData() async {
+    try {
+      final response = await supabase
+          .from('tbl_user')
+          .select()
+          .eq('id', supabase.auth.currentUser!.id)
+          .single();
+      setState(() {
+        userData = response;
+      });
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
   }
 
   void _nextPage1() {
@@ -135,62 +157,110 @@ class _HomepageState extends State<Homepage> {
               DrawerHeader(
                 decoration: BoxDecoration(
                     color: const Color.fromARGB(255, 187, 195, 201)),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.person, size: 40, color: Colors.blue),
-                    ),
-                    SizedBox(height: 10),
-                    Text('User Name',
-                        style: TextStyle(color: Colors.white, fontSize: 18)),
-                    Text('user@example.com',
-                        style: TextStyle(color: Colors.white70)),
-                  ],
-                ),
+                child: userData == null
+                    ? const Center(child: CircularProgressIndicator(color: Colors.white))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.white,
+                            backgroundImage: (userData!['user_photo'] != null &&
+                                    userData!['user_photo'].toString().isNotEmpty)
+                                ? NetworkImage(userData!['user_photo'])
+                                : null,
+                            child: (userData!['user_photo'] == null ||
+                                    userData!['user_photo'].toString().isEmpty)
+                                ? const Icon(Icons.person, size: 40, color: Colors.blue)
+                                : null,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            userData!['user_name'] ?? 'N/A',
+                            style: const TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                          Text(
+                            userData!['user_email'] ?? 'N/A',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                        ],
+                      ),
               ),
               ListTile(
                 leading: Icon(Icons.home),
                 title: Text('Home'),
-                onTap: () {},
+                onTap: () {
+                   Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Homepage()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.person),
+                title: Text('profile'),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Profile()),
+                  );
+                },
               ),
               ListTile(
                 leading: Icon(Icons.list),
                 title: Text('My Booking'),
                 onTap: () {
-                   Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Mybooking()),
-                              );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Mybooking()),
+                  );
                 },
               ),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text('Settings'),
-                onTap: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => SettingsPage(),
-                  //   ),
-                  // );
-                },
+              // ListTile(
+              //   leading: Icon(Icons.settings),
+              //   title: Text('Settings'),
+              //   onTap: () {
+              //     // Navigator.push(
+              //     //   context,
+              //     //   MaterialPageRoute(
+              //     //     builder: (context) => SettingsPage(),
+              //     //   ),
+              //     // );
+              //   },
+              // ), 
+             ListTile(
+              leading: Icon(Icons.logout_outlined, color: Colors.redAccent),
+              title: Text(
+                "Logout",
+                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
               ),
-              ListTile(
-                leading: Icon(Icons.logout),
-                title: Text('Logout'),
-                onTap: () {
-                  // // Navigate to login page and remove all previous routes
-                  // Navigator.pushAndRemoveUntil(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => UserLoginPage()),
-                  //   (route) => false, // Removes all previous routes
-                  // );
-                },
-              ),
+              onTap: () async {
+                final shouldLogout = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text("Logout"),
+                    content: Text("Are you sure you want to logout?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: Text("Logout"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                if (shouldLogout == true) {
+                 supabase.auth.signOut();
+                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Login(),), (route) => false,);
+                }
+              },
+            ),
             ],
           ),
         ),
@@ -464,7 +534,7 @@ class _HomepageState extends State<Homepage> {
                           SizedBox(height: 8),
                           Text(
                             "If you want to make a statement at your next corporate event, partner with "
-                            "Melodia Event Management Company in Kerala.",
+                            "Meredith Event Management Company in Kerala.",
                             style: GoogleFonts.openSans(
                               fontSize: 15,
                               color: Colors.black87,

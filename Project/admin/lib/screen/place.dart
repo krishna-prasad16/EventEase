@@ -15,6 +15,7 @@ class _ManageplaceState extends State<Manageplace>
   bool _isFormVisible = false; // To manage form visibility
   String? selectedDist;
   List<Map<String, dynamic>> districtList = [];
+  List<Map<String, dynamic>> placeList = []; // <-- Add this
   final Duration _animationDuration = const Duration(milliseconds: 300);
   final TextEditingController placeController = TextEditingController();
 
@@ -36,6 +37,7 @@ class _ManageplaceState extends State<Manageplace>
       );
       print("Inserted");
       placeController.clear();
+      fetchPlaces(); // Refresh table after adding
     } catch (e) {
       print("Error adding place:$e");
     }
@@ -47,7 +49,26 @@ class _ManageplaceState extends State<Manageplace>
       setState(() {
         districtList = response;
       });
+      fetchPlaces(); // Fetch places after districts are loaded
     } catch (e) {}
+  }
+
+  Future<void> fetchPlaces() async {
+    try {
+      final response = await supabase.from('tbl_place').select();
+      // Map district id to name for easy lookup
+      final distMap = {for (var d in districtList) d['id'].toString(): d['dist_name']};
+      setState(() {
+        placeList = response.map<Map<String, dynamic>>((place) {
+          return {
+            'place_name': place['place_name'],
+            'district_name': distMap[place['dist_id'].toString()] ?? '',
+          };
+        }).toList();
+      });
+    } catch (e) {
+      print("Error fetching places:$e");
+    }
   }
 
   @override
@@ -108,11 +129,19 @@ class _ManageplaceState extends State<Manageplace>
                                     child: Text(district['dist_name']),
                                   );
                                 }).toList(),
+                                decoration: const InputDecoration(
+                                  labelText: "District",
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please select a district';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
-                            SizedBox(
-                              width: 10,
-                            ),
+                            SizedBox(width: 10),
                             Expanded(
                               child: TextFormField(
                                 controller: placeController,
@@ -120,12 +149,26 @@ class _ManageplaceState extends State<Manageplace>
                                   labelText: "Place Name",
                                   border: OutlineInputBorder(),
                                 ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter a place name';
+                                  }
+                                  if (value.trim().length < 3) {
+                                    return 'Place name must be at least 3 characters';
+                                  }
+                                  if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+                                    return 'Only alphabetic characters allowed';
+                                  }
+                                  return null;
+                                },
                               ),
                             ),
                             const SizedBox(width: 10),
                             ElevatedButton(
                               onPressed: () {
-                                place();
+                                if (_formKey.currentState!.validate()) {
+                                  place();
+                                }
                               },
                               child: const Text("Add"),
                             ),
@@ -136,10 +179,22 @@ class _ManageplaceState extends State<Manageplace>
                   )
                 : Container(),
           ),
-          Container(
-            height: 500,
-            child: const Center(
-              child: Text("Place Data"),
+          const SizedBox(height: 20),
+          // Display the table of places and districts
+          SingleChildScrollView(
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text("Sl.No")),
+                DataColumn(label: Text("Place Name")),
+                DataColumn(label: Text("District Name")),
+              ],
+              rows: placeList.asMap().entries.map((entry) {
+                return DataRow(cells: [
+                  DataCell(Text((entry.key + 1).toString())),
+                  DataCell(Text(entry.value['place_name'])),
+                  DataCell(Text(entry.value['district_name'])),
+                ]);
+              }).toList(),
             ),
           ),
         ],

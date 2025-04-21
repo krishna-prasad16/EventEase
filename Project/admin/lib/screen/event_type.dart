@@ -10,28 +10,44 @@ class ManageEvent extends StatefulWidget {
 
 class _ManageEventState extends State<ManageEvent>
     with SingleTickerProviderStateMixin {
-
-
-  bool _isFormVisible = false; // To manage form visibility
+  final _formKey = GlobalKey<FormState>();
+  bool _isFormVisible = false;
   final Duration _animationDuration = const Duration(milliseconds: 300);
   final TextEditingController eventController = TextEditingController();
- 
+
+  List<Map<String, dynamic>> _eventTypes = []; // Store event types
+
+  Future<void> fetchEventTypes() async {
+    try {
+      final response = await supabase.from('tbl_eventtype').select();
+      setState(() {
+        _eventTypes = response;
+      });
+    } catch (e) {
+      print("ERROR FETCHING EVENT TYPES: $e");
+    }
+  }
 
   Future<void> eventSubmit() async {
     try {
       String eventtype = eventController.text;
-      
-      await supabase.from('tbl_eventtype').insert(
-        {
-          'eventtype_name' : eventtype,
-          
-        }
-      );
+      await supabase.from('tbl_eventtype').insert({
+        'eventtype_name': eventtype,
+      });
       eventController.clear();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content:Text("Inserted"), ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Inserted")),
+      );
+      fetchEventTypes(); // Refresh table after adding
     } catch (e) {
       print("ERROR ADDING EVENT: $e");
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchEventTypes();
   }
 
   @override
@@ -48,8 +64,7 @@ class _ManageEventState extends State<ManageEvent>
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
-                      _isFormVisible =
-                          !_isFormVisible; // Toggle form visibility
+                      _isFormVisible = !_isFormVisible;
                     });
                   },
                   label: Text(_isFormVisible ? "Cancel" : "Add EventType"),
@@ -63,43 +78,61 @@ class _ManageEventState extends State<ManageEvent>
             curve: Curves.easeInOut,
             child: _isFormVisible
                 ? Form(
+                    key: _formKey,
                     child: Column(
-                    children: [
-                      //F,orms
-                      Form(
-                          child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: eventController,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: eventController,
                                 decoration: InputDecoration(
-                              labelText: 'Event Type ',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.zero),
-                            )),
-                          ),
-                          
-                          ElevatedButton(
+                                  labelText: 'Event Type ',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.zero),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Please enter an event type';
+                                  }
+                                  if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+                                    return 'Only alphabetic characters allowed';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                            ElevatedButton(
                               onPressed: () {
-                                eventSubmit();
-                              }, child: Text('Submit'))
-                        ],
-                      )),
-                    ],
-                  ))
+                                if (_formKey.currentState!.validate()) {
+                                  eventSubmit();
+                                }
+                              },
+                              child: Text('Submit'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
                 : Container(),
           ),
-          Container(
-            height: 500,
-            child: Center(
-              child: Text(
-                "events",
-                style: TextStyle(
-                  fontSize: 20, // Adjust the size for emphasis
-                ),
-              ),
+          const SizedBox(height: 20),
+          // Display the table of event types
+          SingleChildScrollView(
+            child: DataTable(
+              columns: const [
+                DataColumn(label: Text("Sl.No")),
+                DataColumn(label: Text("Event Type")),
+              ],
+              rows: _eventTypes.asMap().entries.map((entry) {
+                return DataRow(cells: [
+                  DataCell(Text((entry.key + 1).toString())),
+                  DataCell(Text(entry.value['eventtype_name'])),
+                ]);
+              }).toList(),
             ),
-          )
+          ),
         ],
       ),
     );

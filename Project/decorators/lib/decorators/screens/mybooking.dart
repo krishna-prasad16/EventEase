@@ -1,4 +1,5 @@
 import 'package:decorators/decorators/screens/booking_details.dart';
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -64,22 +65,9 @@ class _MybookingState extends State<Mybooking> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "My Bookings",
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
-        ),
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchBookings,
-            tooltip: 'Refresh Bookings',
-          ),
-        ],
+     appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomDecAppBar(isScrolled: false),
       ),
       body: RefreshIndicator(
         onRefresh: fetchBookings,

@@ -14,6 +14,7 @@ class _ManageDistrictState extends State<ManageDistrict>
   bool _isFormVisible = false; // To manage form visibility
   final Duration _animationDuration = const Duration(milliseconds: 300);
   final TextEditingController distController = TextEditingController();
+  final _formKey = GlobalKey<FormState>(); // Add this line
   List<Map<String, dynamic>> _dist = [];
   int _editid = 0;
 
@@ -109,6 +110,7 @@ class _ManageDistrictState extends State<ManageDistrict>
             curve: Curves.easeInOut,
             child: _isFormVisible
                 ? Form(
+                    key: _formKey, // Add this line
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -147,6 +149,18 @@ class _ManageDistrictState extends State<ManageDistrict>
                                         horizontal:
                                             16.0), // Padding inside the input
                                   ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please enter a district name';
+                                    }
+                                    if (value.trim().length < 3) {
+                                      return 'District name must be at least 3 characters';
+                                    }
+                                    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+                                      return 'Only alphabetic characters allowed';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                               const SizedBox(
@@ -154,12 +168,14 @@ class _ManageDistrictState extends State<ManageDistrict>
                                       16.0), // Add spacing between input and button
                               ElevatedButton(
                                 onPressed: () {
-                                  if (_editid != 0) {
-                                    update();
-                                    _isFormVisible = false;
-                                  } else {
-                                    distSubmit();
-                                    _isFormVisible = false;
+                                  if (_formKey.currentState!.validate()) {
+                                    if (_editid != 0) {
+                                      update();
+                                      _isFormVisible = false;
+                                    } else {
+                                      distSubmit();
+                                      _isFormVisible = false;
+                                    }
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(

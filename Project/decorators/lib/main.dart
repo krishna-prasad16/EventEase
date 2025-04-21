@@ -34,7 +34,7 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     // Check if the user is logged in
     final session = supabase.auth.currentSession;
-
+  
     // Navigate to the appropriate screen based on the authentication state
     if (session != null) {
       return DecHomepage(); // Replace with your home screen widget

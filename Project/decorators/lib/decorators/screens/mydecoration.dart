@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,13 @@ class _MydecorationState extends State<Mydecoration> {
         'decoration_description': _descriptionController.text,
         'decoration_image': url,
       });
+      _titleController.clear();
 
+      _budgetController.clear();
+      _descriptionController.clear();
+      setState(() {
+        pickedImage = null; // Reset the image after submission
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(" Inserted successfully!"),
@@ -89,47 +96,10 @@ class _MydecorationState extends State<Mydecoration> {
   @override
 Widget build(BuildContext context) {
   return Scaffold(
-    appBar: PreferredSize(
-      preferredSize: const Size.fromHeight(80),
-      child: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 4,
-        automaticallyImplyLeading: false,
-        flexibleSpace: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.asset(
-                  'assets/logo.png',
-                  width: 270,
-                  height: 60,
-                ),
-                Row(
-                  children: [
-                    TextButton(onPressed: () {}, child: Text("Home")),
-                    TextButton(onPressed: () {}, child: Text("My Booking")),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Mydecoration()),
-                        );
-                      },
-                      child: Text("My Decorations"),
-                    ),
-                    TextButton(onPressed: () {}, child: Text("Profile")),
-                    TextButton(onPressed: () {}, child: Text("Logout")),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
+   appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomDecAppBar(isScrolled: false),
       ),
-    ),
     body: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Center(

@@ -1,7 +1,6 @@
 import 'dart:async';
-import 'package:decorators/decorators/screens/mybooking.dart';
-import 'package:decorators/decorators/screens/mydecoration.dart';
-import 'package:decorators/decorators/screens/viewdecoration.dart';
+
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -199,75 +198,8 @@ class _DecHomepageState extends State<DecHomepage>
       backgroundColor: Colors.white,
 
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70),
-        child: Container(
-          color: _isScrolled ? Colors.white : Colors.transparent,
-
-          // color: Colors.white, // This will force pure white
-          child: SafeArea(
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    width: 200,
-                    height: 130,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(
-                    width: 700,
-                  ),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DecHomepage()),
-                        );
-                      },
-                      child: Text("Home")),
-                  // TextButton(onPressed: () {
-                  //   Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(builder: (context) => Mydecoration()),
-                  //     );
-                  // }, child: Text("My Booking")),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Mydecoration()),
-                        );
-                      },
-                      child: Text("Add Decoration")),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ViewDecoration()),
-                        );
-                      },
-                      child: Text("View Decorations")),
-                      TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Mybooking()),
-                        );
-                      },
-                      child: Text("My Booking")),
-                  TextButton(onPressed: () {}, child: Text("Profile")),
-                  TextButton(onPressed: () {}, child: Text("Logout")),
-                ],
-              ),
-            ),
-          ),
-        ),
+        preferredSize: const Size.fromHeight(70),
+        child: CustomDecAppBar(isScrolled: _isScrolled),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,

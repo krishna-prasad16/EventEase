@@ -6,7 +6,7 @@ import 'package:user/Screens/sendrqst.dart';
 
 class Decodetails extends StatefulWidget {
   final Map<String, dynamic> decoration;
- 
+
   const Decodetails({super.key, required this.decoration});
 
   @override
@@ -14,6 +14,43 @@ class Decodetails extends StatefulWidget {
 }
 
 class _DecodetailsState extends State<Decodetails> {
+  double avgRating = 0.0;
+  bool isLoadingRatings = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDecorationRatings();
+  }
+
+  Future<void> fetchDecorationRatings() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('tbl_review')
+          .select('review_rating')
+          .eq('decorator_id', widget.decoration['decorator_id']);
+      
+      List<int> ratings = response.map<int>((row) => row['review_rating'] ?? 0).toList();
+      setState(() {
+        avgRating = ratings.isEmpty
+            ? 0
+            : ratings.reduce((a, b) => a + b) / ratings.length;
+        isLoadingRatings = false;
+      });
+      print('Decoration Ratings: $avgRating'); // Debug log
+    } catch (e) {
+      print('Error fetching ratings: $e');
+      setState(() {
+        avgRating = 0;
+        isLoadingRatings = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching ratings: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,27 +106,73 @@ class _DecodetailsState extends State<Decodetails> {
             ),
             const SizedBox(height: 20),
 
+            // Rating Display
+            Row(
+              children: [
+                Text(
+                  "Rating: ",
+                  style: GoogleFonts.cormorantGaramond(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                isLoadingRatings
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          ...List.generate(
+                            5,
+                            (star) => Icon(
+                              star < avgRating.round() ? Icons.star : Icons.star_border,
+                              color: Colors.amber,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
+                            style: const TextStyle(fontSize: 16, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
             Text(
               "Decorator Details:",
               style: GoogleFonts.cormorantGaramond(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              "Name: ${widget.decoration['tbl_decorators']['dec_name']}",
+              "Name: ${widget.decoration['tbl_decorators']?['dec_name'] ?? 'Unknown'}",
               style: const TextStyle(fontSize: 16),
             ),
             Text(
-              "Email: ${widget.decoration['tbl_decorators']['dec_email']}",
+              "Email: ${widget.decoration['tbl_decorators']?['dec_email'] ?? 'N/A'}",
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 30),
-            ElevatedButton(onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SendRequest(id: widget.decoration['id']),));
-            }, child: Text('Send Request')),
-            ElevatedButton(onPressed: (){
-              
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MoreDecorations(id: widget.decoration['decorator_id']),));
-            }, child: Text('View More')),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SendRequest(id: widget.decoration['id']),
+                  ),
+                );
+              },
+              child: const Text('Send Request'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MoreDecorations(id: widget.decoration['decorator_id']),
+                  ),
+                );
+              },
+              child: const Text('View More'),
+            ),
           ],
         ),
       ),

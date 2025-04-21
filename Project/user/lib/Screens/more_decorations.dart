@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:user/Screens/decodetails.dart';
 
 class MoreDecorations extends StatefulWidget {
-  final int id;
+  final String id;
   const MoreDecorations({super.key, required this.id});
 
   @override

@@ -31,7 +31,7 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
       // Fetch booking details
       final bookingResponse = await Supabase.instance.client
           .from('tbl_cateringbooking')
-          .select('id, booking_fordate, booking_status, booking_budget, booking_venue, booking_total, booking_detail, tbl_eventtype(eventtype_name), tbl_user(user_name)')
+          .select('id, catering_id, booking_fordate, booking_status, booking_budget, booking_venue, booking_total, booking_detail, tbl_eventtype(eventtype_name), tbl_user(user_name)')
           .eq('id', widget.bookingId)
           .single();
 
@@ -102,6 +102,12 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromARGB(255, 208, 205, 212),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: fetchBookingDetails,
+          ),
+        ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -283,6 +289,31 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
                                       );
                                     },
                                   ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                if (booking['booking_status'] == 5)
+                                  ElevatedButton.icon(
+                                    onPressed: showCateringRatingDialog,
+                                    icon: const Icon(Icons.star),
+                                    label: const Text('Rate'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.amber,
+                                    ),
+                                  ),
+                                if (booking['booking_status'] == 1 ||
+                                    booking['booking_status'] == 3 ||
+                                    booking['booking_status'] == 5)
+                                  ElevatedButton.icon(
+                                    onPressed: showCateringComplaintDialog,
+                                    icon: const Icon(Icons.report),
+                                    label: const Text('Report Complaint'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -333,6 +364,149 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
           ),
         ),
       ],
+    );
+  }
+
+  // Submit rating to Supabase
+  Future<void> submitCateringRating(int ratingValue, String comment) async {
+    try {
+      await Supabase.instance.client.from('tbl_review').insert({
+        'catering_id': booking['catering_id'], // Make sure you fetch catering_id in your booking query!
+        'review_rating': ratingValue,
+        'review_content': comment,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rating submitted successfully')),
+      );
+    } catch (e) {
+      print("Error submitting rating: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error submitting rating')),
+      );
+    }
+  }
+
+  // Submit complaint to Supabase
+  Future<void> submitCateringComplaint(String title, String content) async {
+    try {
+      await Supabase.instance.client.from('tbl_complaint').insert({
+        'catering_id': booking['catering_id'], // Make sure you fetch catering_id in your booking query!
+        'complaint_title': title,
+        'complaint_content': content,
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Complaint submitted successfully')),
+      );
+    } catch (e) {
+      print("Error submitting complaint: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error submitting complaint')),
+      );
+    }
+  }
+
+  void showCateringRatingDialog() {
+    int ratingValue = 0;
+    final TextEditingController commentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rate Catering'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Select Rating:'),
+            StatefulBuilder(
+              builder: (context, setState) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    icon: Icon(
+                      index < ratingValue ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        ratingValue = index + 1;
+                      });
+                    },
+                  );
+                }),
+              ),
+            ),
+            TextField(
+              controller: commentController,
+              decoration: const InputDecoration(hintText: 'Enter your comment (optional)'),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (ratingValue > 0) {
+                submitCateringRating(ratingValue, commentController.text);
+                Navigator.pop(context);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select a rating')),
+                );
+              }
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void showCateringComplaintDialog() {
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController contentController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Report Complaint'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: const InputDecoration(hintText: 'Complaint Title'),
+            ),
+            TextField(
+              controller: contentController,
+              decoration: const InputDecoration(hintText: 'Complaint Details'),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              if (titleController.text.isNotEmpty && contentController.text.isNotEmpty) {
+                submitCateringComplaint(titleController.text, contentController.text);
+                Navigator.pop(context);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in all fields')),
+                );
+              }
+            },
+            child: const Text('Submit'),
+          ),
+        ],
+      ),
     );
   }
 }

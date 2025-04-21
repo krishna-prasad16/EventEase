@@ -69,6 +69,12 @@ class _MyFoodState extends State<MyFood> {
         'food_type': _foodType, // Insert food type
       });
 
+      _titleController.clear();
+      _budgetController.clear();    
+      setState(() {
+        pickedImage = null; // Reset the image after submission
+      });
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(" Inserted successfully!"),

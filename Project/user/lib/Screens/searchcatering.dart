@@ -14,6 +14,7 @@ class _SearchcateringState extends State<Searchcatering> {
   List<Map<String, dynamic>> placeList = [];
   List<Map<String, dynamic>> caterList = [];
   List<Map<String, dynamic>> filteredCaterList = [];
+  Map<String, double> catererRatings = {};
 
   TextEditingController searchController = TextEditingController();
   String? _selectedDistrict;
@@ -24,8 +25,7 @@ class _SearchcateringState extends State<Searchcatering> {
   @override
   void initState() {
     super.initState();
-    _fetchDistricts();
-    fetchCatering();
+    _fetchInitialData();
     searchController.addListener(_filterCatering);
   }
 
@@ -35,32 +35,50 @@ class _SearchcateringState extends State<Searchcatering> {
     super.dispose();
   }
 
-  Future<void> fetchCatering() async {
+  Future<void> _fetchInitialData() async {
     setState(() {
       isLoading = true;
       errorMessage = null;
     });
+    try {
+      await Future.wait([
+        _fetchDistricts(),
+        fetchCatering(),
+        fetchCateringRatings().then((ratings) {
+          setState(() {
+            catererRatings = ratings;
+            print('Caterer Ratings: $catererRatings'); // Debug log
+          });
+        }),
+      ]);
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error fetching initial data: $e';
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error fetching data: $e')),
+        );
+      }
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchCatering() async {
     try {
       final response = await supabase
           .from('tbl_catering')
           .select('id, cat_name, cat_img, place_id, tbl_place(place_name,dist_id,tbl_district(dist_name))')
           .eq('cat_status', 1);
       setState(() {
-        caterList = response;
-        filteredCaterList = response;
-        isLoading = false;
+        caterList = List<Map<String, dynamic>>.from(response);
+        filteredCaterList = caterList;
       });
-      _filterCatering();
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error fetching catering services: $e';
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching catering: $e')),
-        );
-      }
+      throw Exception('Error fetching catering services: $e');
     }
   }
 
@@ -71,21 +89,14 @@ class _SearchcateringState extends State<Searchcatering> {
       for (var data in response) {
         dist.add({
           'id': data['id'].toString(),
-          'name': data['dist_name'],
+          'name': data['dist_name'] ?? 'Unknown',
         });
       }
       setState(() {
         distList = dist;
       });
     } catch (e) {
-      setState(() {
-        errorMessage = 'Error fetching districts: $e';
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error fetching districts: $e')),
-        );
-      }
+      throw Exception('Error fetching districts: $e');
     }
   }
 
@@ -96,12 +107,12 @@ class _SearchcateringState extends State<Searchcatering> {
       for (var data in response) {
         plc.add({
           'id': data['place_id'].toString(),
-          'name': data['place_name'],
+          'name': data['place_name'] ?? 'Unknown',
         });
       }
       setState(() {
         placeList = plc;
-        _selectedPlace = null; // Reset place when district changes
+        _selectedPlace = null;
         _filterCatering();
       });
     } catch (e) {
@@ -119,9 +130,9 @@ class _SearchcateringState extends State<Searchcatering> {
       filteredCaterList = caterList.where((cater) {
         final name = cater['cat_name']?.toLowerCase() ?? '';
         final placeId = cater['place_id']?.toString();
-        final distId = cater['tbl_place']['dist_id']?.toString();
+        final distId = cater['tbl_place']?['dist_id']?.toString();
 
-        bool matchesSearch = name.contains(query) ;
+        bool matchesSearch = name.contains(query);
         bool matchesPlace = _selectedPlace == null || placeId == _selectedPlace;
         bool matchesDistrict = _selectedDistrict == null || distId == _selectedDistrict;
 
@@ -130,7 +141,30 @@ class _SearchcateringState extends State<Searchcatering> {
     });
   }
 
-  
+  Future<Map<String, double>> fetchCateringRatings() async {
+    try {
+      final response = await supabase
+          .from('tbl_review')
+          .select('catering_id, review_rating');
+      Map<String, List<int>> ratingsMap = {};
+      for (var row in response) {
+        String id = row['catering_id'].toString();
+        int rating = row['review_rating'] ?? 0;
+        ratingsMap.putIfAbsent(id, () => []).add(rating);
+      }
+      // Calculate average
+      Map<String, double> avgRatings = {};
+      ratingsMap.forEach((id, ratings) {
+        avgRatings[id] = ratings.isEmpty
+            ? 0
+            : ratings.reduce((a, b) => a + b) / ratings.length;
+      });
+      return avgRatings;
+    } catch (e) {
+      print('Error fetching ratings: $e');
+      return {};
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,10 +181,7 @@ class _SearchcateringState extends State<Searchcatering> {
         elevation: 2,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await _fetchDistricts();
-          await fetchCatering();
-        },
+        onRefresh: _fetchInitialData,
         color: const Color(0xFFB1C4D6),
         child: isLoading
             ? const Center(
@@ -180,7 +211,7 @@ class _SearchcateringState extends State<Searchcatering> {
                         ),
                         const SizedBox(height: 16),
                         ElevatedButton(
-                          onPressed: fetchCatering,
+                          onPressed: _fetchInitialData,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFF3F6FB),
                             foregroundColor: Colors.black87,
@@ -213,7 +244,6 @@ class _SearchcateringState extends State<Searchcatering> {
                               ),
                               contentPadding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            onChanged: (value) => _filterCatering(),
                           ),
                           const SizedBox(height: 16),
                           // District Dropdown
@@ -291,6 +321,9 @@ class _SearchcateringState extends State<Searchcatering> {
                                   itemCount: filteredCaterList.length,
                                   itemBuilder: (context, index) {
                                     final data = filteredCaterList[index];
+                                    final String catererId = data['id'].toString();
+                                    final double avgRating = catererRatings[catererId] ?? 0;
+
                                     return Card(
                                       elevation: 2,
                                       shape: RoundedRectangleBorder(
@@ -342,12 +375,37 @@ class _SearchcateringState extends State<Searchcatering> {
                                                 color: Colors.grey[600],
                                               ),
                                             ),
+                                            // Rating Row
+                                            Wrap(
+                                              crossAxisAlignment: WrapCrossAlignment.center,
+                                              children: [
+                                                ...List.generate(
+                                                  5,
+                                                  (star) => Icon(
+                                                    star < avgRating.round()
+                                                        ? Icons.star
+                                                        : Icons.star_border,
+                                                    color: Colors.amber,
+                                                    size: 18,
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
+                                                  style: const TextStyle(fontSize: 13, color: Colors.black54),
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                         trailing: ElevatedButton(
                                           onPressed: () {
-                                            // print("Selected Catering ID: ${data['id']}");
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => FoodSelect(catId: data['id']),));
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => FoodSelect(catId: data['id']),
+                                              ),
+                                            );
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color(0xFFB1C4D6),
@@ -408,7 +466,7 @@ class _SearchcateringState extends State<Searchcatering> {
         if (value == null && hint.contains("District")) {
           return "Please select a district";
         }
-        return null; // Place is optional
+        return null;
       },
     );
   }

@@ -1,4 +1,6 @@
 import 'package:decorators/decorators/screens/mydecoration.dart';
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
+import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -22,7 +24,7 @@ class _ViewDecorationState extends State<ViewDecoration> {
   Future<void> _fetchProducts() async {
     try {
       final response =
-          await Supabase.instance.client.from('tbl_decorations').select();
+          await Supabase.instance.client.from('tbl_decorations').select().eq('decorator_id', supabase.auth.currentUser!.id).order('created_at', ascending: false);
       setState(() {
         products = List<Map<String, dynamic>>.from(response);
         isLoading = false;
@@ -63,48 +65,9 @@ class _ViewDecorationState extends State<ViewDecoration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 4,
-          automaticallyImplyLeading: false,
-          flexibleSpace: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    'assets/logo.png',
-                    width: 270,
-                    height: 60,
-                  ),
-                  Row(
-                    children: [
-                      TextButton(onPressed: () {}, child: const Text("Home")),
-                      TextButton(
-                          onPressed: () {}, child: const Text("My Booking")),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Mydecoration()),
-                          );
-                        },
-                        child: const Text("My Decorations"),
-                      ),
-                      TextButton(
-                          onPressed: () {}, child: const Text("Profile")),
-                      TextButton(onPressed: () {}, child: const Text("Logout")),
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
+     appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomDecAppBar(isScrolled: false),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

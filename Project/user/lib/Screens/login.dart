@@ -248,19 +248,8 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        // Handle forgot password if needed
-                      },
-                      child: const Text(
-                        'Forgot Password?',
-                        style: TextStyle(color: Color(0xFF7D8CA2)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
+                 
+                 
                   ElevatedButton(
                     onPressed: _isLoading ? null : _signIn,
                     style: ElevatedButton.styleFrom(

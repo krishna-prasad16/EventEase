@@ -141,6 +141,7 @@ class _RegistrationState extends State<Registration> {
           'user_name': _nameController.text.trim(),
           'user_email': _emailController.text.trim(),
           'user_photo': imageUrl,
+          'user_password': _passwordController.text.trim(),
           'place_id': _selectedPlace,
         });
 

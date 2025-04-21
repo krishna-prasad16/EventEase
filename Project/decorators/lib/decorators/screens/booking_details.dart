@@ -1,3 +1,4 @@
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart'; // Added for date formatting
@@ -210,23 +211,9 @@ class _BookingdetailsState extends State<Bookingdetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       
-      appBar: AppBar(
-        title: const Text(
-          'Booking Details',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-          ),
-        ),
-        backgroundColor: const Color.fromARGB(255, 208, 205, 212),
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchBookings,
-            tooltip: 'Refresh Details',
-          ),
-        ],
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomDecAppBar(isScrolled: false),
       ),
       body: RefreshIndicator(
         onRefresh: fetchBookings,
