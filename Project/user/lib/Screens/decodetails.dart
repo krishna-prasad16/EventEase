@@ -13,14 +13,31 @@ class Decodetails extends StatefulWidget {
   State<Decodetails> createState() => _DecodetailsState();
 }
 
-class _DecodetailsState extends State<Decodetails> {
+class _DecodetailsState extends State<Decodetails> with SingleTickerProviderStateMixin {
   double avgRating = 0.0;
   bool isLoadingRatings = true;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
     fetchDecorationRatings();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchDecorationRatings() async {
@@ -37,7 +54,7 @@ class _DecodetailsState extends State<Decodetails> {
             : ratings.reduce((a, b) => a + b) / ratings.length;
         isLoadingRatings = false;
       });
-      print('Decoration Ratings: $avgRating'); // Debug log
+      print('Decoration Ratings: $avgRating');
     } catch (e) {
       print('Error fetching ratings: $e');
       setState(() {
@@ -55,125 +72,193 @@ class _DecodetailsState extends State<Decodetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(
           widget.decoration['decoration_title'] ?? "Decoration Details",
-          style: GoogleFonts.cormorantGaramond(
-            fontWeight: FontWeight.bold,
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF3E2723),
           ),
         ),
-        backgroundColor: const Color.fromARGB(255, 204, 209, 208),
+        iconTheme: IconThemeData(color: Color(0xFF8D6E63)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                widget.decoration['decoration_image'] ?? 'https://via.placeholder.com/300',
-                width: double.infinity,
-                height: 250,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Icon(Icons.broken_image, size: 100));
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              widget.decoration['decoration_title'] ?? "No Name",
-              style: GoogleFonts.cormorantGaramond(fontSize: 26),
-            ),
-            const SizedBox(height: 10),
-
-            Text(
-              "Description:",
-              style: GoogleFonts.cormorantGaramond(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.decoration['decoration_description'] ?? 'No description available',
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              "Price: \$${widget.decoration['decoration_budget'] ?? '0.00'}",
-              style: const TextStyle(fontSize: 18, color: Colors.green),
-            ),
-            const SizedBox(height: 20),
-
-            // Rating Display
-            Row(
-              children: [
-                Text(
-                  "Rating: ",
-                  style: GoogleFonts.cormorantGaramond(fontSize: 18, fontWeight: FontWeight.bold),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.network(
+                  widget.decoration['decoration_image'] ?? 'https://via.placeholder.com/300',
+                  width: double.infinity,
+                  height: 250,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 250,
+                      color: Colors.grey.shade200,
+                      child: Icon(Icons.broken_image, size: 100, color: Colors.grey.shade400),
+                    );
+                  },
                 ),
-                isLoadingRatings
-                    ? const CircularProgressIndicator(strokeWidth: 2)
-                    : Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          ...List.generate(
-                            5,
-                            (star) => Icon(
-                              star < avgRating.round() ? Icons.star : Icons.star_border,
-                              color: Colors.amber,
-                              size: 20,
+              ),
+              const SizedBox(height: 20),
+              Text(
+                widget.decoration['decoration_title'] ?? "No Name",
+                style: GoogleFonts.lora(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Description:",
+                style: GoogleFonts.lora(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                widget.decoration['decoration_description'] ?? 'No description available',
+                style: GoogleFonts.openSans(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Price: \$${widget.decoration['decoration_budget'] ?? '0.00'}",
+                style: GoogleFonts.openSans(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF81C784),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Text(
+                    "Rating: ",
+                    style: GoogleFonts.lora(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF3E2723),
+                    ),
+                  ),
+                  isLoadingRatings
+                      ? CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF8D6E63))
+                      : Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            ...List.generate(
+                              5,
+                              (star) => Icon(
+                                star < avgRating.round() ? Icons.star : Icons.star_border,
+                                color: Color(0xFFFFCC80),
+                                size: 20,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
-                            style: const TextStyle(fontSize: 16, color: Colors.black54),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Text(
+                              avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
+                              style: GoogleFonts.openSans(
+                                fontSize: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Decorator Details:",
+                style: GoogleFonts.lora(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Name: ${widget.decoration['tbl_decorators']?['dec_name'] ?? 'Unknown'}",
+                style: GoogleFonts.openSans(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              Text(
+                "Email: ${widget.decoration['tbl_decorators']?['dec_email'] ?? 'N/A'}",
+                style: GoogleFonts.openSans(
+                  fontSize: 14,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SendRequest(id: widget.decoration['id']),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF6D4C41),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              "Decorator Details:",
-              style: GoogleFonts.cormorantGaramond(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Name: ${widget.decoration['tbl_decorators']?['dec_name'] ?? 'Unknown'}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(
-              "Email: ${widget.decoration['tbl_decorators']?['dec_email'] ?? 'N/A'}",
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SendRequest(id: widget.decoration['id']),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    child: Text(
+                      'Send Request',
+                      style: GoogleFonts.openSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                );
-              },
-              child: const Text('Send Request'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MoreDecorations(id: widget.decoration['decorator_id']),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MoreDecorations(id: widget.decoration['decorator_id']),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF8D6E63),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    child: Text(
+                      'View More',
+                      style: GoogleFonts.openSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                );
-              },
-              child: const Text('View More'),
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
