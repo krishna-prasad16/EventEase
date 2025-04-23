@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:user/main.dart';
 
 class FeedbackPage extends StatefulWidget {
@@ -9,12 +9,37 @@ class FeedbackPage extends StatefulWidget {
   State<FeedbackPage> createState() => _FeedbackPageState();
 }
 
-class _FeedbackPageState extends State<FeedbackPage> { 
+class _FeedbackPageState extends State<FeedbackPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController feedbackController = TextEditingController();
   final TextEditingController detailsController = TextEditingController();
   bool isLoading = false;
   List<Map<String, dynamic>> feedbackList = [];
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchfeedbackList();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    feedbackController.dispose();
+    detailsController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
   Future<void> submitFeedback() async {
     if (!_formKey.currentState!.validate()) return;
@@ -32,12 +57,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
             'Feedback submitted',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF3E2723),
         ),
       );
       feedbackController.clear();
       detailsController.clear();
-      await fetchfeedbackList(); // Refresh after insert
+      await fetchfeedbackList();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -72,7 +97,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       await fetchfeedbackList();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Feedback deleted'), backgroundColor: Colors.green),
+            content: Text('Feedback deleted'), backgroundColor: Color(0xFF3E2723)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -84,53 +109,55 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchfeedbackList();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xffffffff),
-        title: const Text('Feedback'),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Feedback',
+          style: GoogleFonts.lora(
+            color: Color(0xFF3E2723),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFF8D6E63)),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xffffffff),
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    )
-                  ],
-                ),
-                child: SingleChildScrollView(
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                  padding: const EdgeInsets.all(20.0),
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF9F6F2),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Form(
                     key: _formKey,
                     child: Column(
                       children: [
+                        Icon(Icons.feedback, size: 60, color: Color(0xFF8D6E63)),
                         const SizedBox(height: 10),
-                        Icon(Icons.feedback,
-                            size: 60, color: Color(0xFFbc6c25)),
-                        const SizedBox(height: 10),
-                        const Text(
+                        Text(
                           'We value your feedback!',
-                          style: TextStyle(
+                          style: GoogleFonts.lora(
                             fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFbc6c25),
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF3E2723),
                           ),
                         ),
                         const SizedBox(height: 30),
@@ -138,10 +165,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           controller: feedbackController,
                           decoration: InputDecoration(
                             labelText: 'Feedback Title',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            labelStyle: GoogleFonts.openSans(
+                              color: Colors.grey.shade600,
                             ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            prefixIcon: Icon(Icons.title, color: Color(0xFF8D6E63)),
                           ),
+                          style: GoogleFonts.openSans(),
                           validator: (value) =>
                               value == null || value.trim().isEmpty
                                   ? 'Title is required'
@@ -155,10 +190,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
                           controller: detailsController,
                           decoration: InputDecoration(
                             labelText: 'Details',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            labelStyle: GoogleFonts.openSans(
+                              color: Colors.grey.shade600,
                             ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            prefixIcon: Icon(Icons.description, color: Color(0xFF8D6E63)),
                           ),
+                          style: GoogleFonts.openSans(),
                           validator: (value) =>
                               value == null || value.trim().isEmpty
                                   ? 'Details are required'
@@ -178,23 +221,22 @@ class _FeedbackPageState extends State<FeedbackPage> {
                                       strokeWidth: 2,
                                     ),
                                   )
-                                : Icon(
-                                    Icons.send,
-                                    color: Colors.white,
-                                  ),
+                                : Icon(Icons.send, color: Colors.white),
                             label: Text(
                               isLoading ? 'Submitting...' : 'Submit Feedback',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Color(0xfff8f9fa),
+                              style: GoogleFonts.openSans(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFbc6c25),
+                              backgroundColor: Color(0xFF6D4C41),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(12),
                               ),
+                              elevation: 0,
                             ),
                           ),
                         ),
@@ -204,118 +246,142 @@ class _FeedbackPageState extends State<FeedbackPage> {
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
-           Align(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Your Feedback",
-                    style: TextStyle(
+                    style: GoogleFonts.lora(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFbc6c25),
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF3E2723),
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                feedbackList.isEmpty
-                    ? const Text(
+              ),
+              const SizedBox(height: 10),
+              feedbackList.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
                         "No feedback submitted yet.",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    : ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: feedbackList.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final fb = feedbackList[index];
-                          return Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFf6f6f6),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        fb['complaint_title'] ?? '',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Color(0xFFbc6c25),
-                                        ),
+                        style: GoogleFonts.openSans(
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: feedbackList.length,
+                      separatorBuilder: (_, __) => SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final fb = feedbackList[index];
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.1),
+                                blurRadius: 6,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      fb['complaint_title'] ?? '',
+                                      style: GoogleFonts.lora(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                        color: Color(0xFF3E2723),
                                       ),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red, size: 22),
-                                      tooltip: 'Delete',
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text('Delete Feedback'),
-                                            content: const Text('Are you sure you want to delete this feedback?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
-                                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                              ),
-                                            ],
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.redAccent, size: 22),
+                                    tooltip: 'Delete',
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Delete Feedback', style: GoogleFonts.lora()),
+                                          content: Text(
+                                            'Are you sure you want to delete this feedback?',
+                                            style: GoogleFonts.openSans(),
                                           ),
-                                        );
-                                        if (confirm == true) {
-                                          await deleteFeedback(fb['id']);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  fb['complaint_content'] ?? '',
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                                const SizedBox(height: 8),
-                                if (fb['complaint_reply'] != null && fb['complaint_reply'].toString().trim().isNotEmpty)
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 8),
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.08),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(Icons.reply, color: Colors.green, size: 20),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            fb['complaint_reply'],
-                                            style: const TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w600,
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: Text('Cancel', style: GoogleFonts.openSans()),
                                             ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: Text(
+                                                'Delete',
+                                                style: GoogleFonts.openSans(color: Colors.redAccent),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm == true) {
+                                        await deleteFeedback(fb['id']);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                fb['complaint_content'] ?? '',
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (fb['complaint_reply'] != null && fb['complaint_reply'].toString().trim().isNotEmpty)
+                                Container(
+                                  margin: const EdgeInsets.only(top: 8),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF8D6E63).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(Icons.reply, color: Color(0xFF8D6E63), size: 20),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          fb['complaint_reply'],
+                                          style: GoogleFonts.openSans(
+                                            color: Color(0xFF8D6E63),
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-          ],
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ],
+          ),
         ),
       ),
     );
