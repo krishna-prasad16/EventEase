@@ -146,11 +146,17 @@ Future<void> fetchEvent() async {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F6F0),
+      backgroundColor: const Color(0xFFF8F6F0), // Light brown background
       appBar: AppBar(
         title: const Text('Send Request'),
         backgroundColor: Colors.white,
         elevation: 2,
+        iconTheme: const IconThemeData(color: Color(0xFF6D4C41)),
+        titleTextStyle: const TextStyle(
+          color: Color(0xFF3E2723),
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -163,7 +169,7 @@ Future<void> fetchEvent() async {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.shade300,
+                    color: Colors.brown.withOpacity(0.08),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   )
@@ -305,13 +311,13 @@ Future<void> fetchEvent() async {
                     ElevatedButton(
                       onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 138, 204, 162),
+                        backgroundColor: const Color(0xFF6D4C41), // Main brown
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
+                        elevation: 0,
                       ),
                       child: const Text(
                         'Send Request',

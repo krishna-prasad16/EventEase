@@ -117,11 +117,11 @@ class _FoodSelectState extends State<FoodSelect> {
             fontSize: 20,
           ),
         ),
-        backgroundColor: const Color(0xFFF3F6FB),
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255), // Brown
         elevation: 2,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFFB1C4D6)),
+            icon: const Icon(Icons.refresh, color: Color(0xFF8D6E63)), // Lighter brown
             onPressed: fetchFoodList,
             tooltip: 'Refresh',
           ),
@@ -132,12 +132,12 @@ class _FoodSelectState extends State<FoodSelect> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: fetchFoodList,
-              color: const Color(0xFFB1C4D6),
+              color: const Color(0xFF8D6E63), // Lighter brown
               child: isLoading
                   ? const Center(
                       child: CircularProgressIndicator(
                         valueColor:
-                            AlwaysStoppedAnimation<Color>(Color(0xFFB1C4D6)),
+                            AlwaysStoppedAnimation<Color>(Color(0xFF8D6E63)),
                       ),
                     )
                   : errorMessage != null
@@ -164,8 +164,8 @@ class _FoodSelectState extends State<FoodSelect> {
                               ElevatedButton(
                                 onPressed: fetchFoodList,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFF3F6FB),
-                                  foregroundColor: Colors.black87,
+                                  backgroundColor: const Color(0xFF6D4C41),
+                                  foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -188,9 +188,9 @@ class _FoodSelectState extends State<FoodSelect> {
                                   decoration: InputDecoration(
                                     hintText: 'Search Food',
                                     prefixIcon: const Icon(Icons.search,
-                                        color: Color(0xFFB1C4D6)),
+                                        color: Color(0xFF8D6E63)),
                                     filled: true,
-                                    fillColor: const Color(0xFFF3F6FB),
+                                    fillColor: const Color(0xFFF5E9E2),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
@@ -221,7 +221,7 @@ class _FoodSelectState extends State<FoodSelect> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
+                                    color: Color(0xFF3E2723), // Dark brown
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -296,10 +296,10 @@ class _FoodSelectState extends State<FoodSelect> {
                                                     width: 60,
                                                     height: 60,
                                                     color:
-                                                        const Color(0xFFF3F6FB),
+                                                        const Color(0xFFF5E9E2),
                                                     child: const Icon(
                                                       Icons.broken_image,
-                                                      color: Color(0xFFB1C4D6),
+                                                      color: Color(0xFF8D6E63),
                                                     ),
                                                   ),
                                                 ),
@@ -309,7 +309,7 @@ class _FoodSelectState extends State<FoodSelect> {
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Colors.black87,
+                                                  color: Color(0xFF3E2723),
                                                 ),
                                               ),
                                               subtitle: Column(
@@ -342,8 +342,8 @@ class _FoodSelectState extends State<FoodSelect> {
                                                         food['food_amount']),
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: isSelected
-                                                      ? Colors.green[600]
-                                                      : const Color(0xFFB1C4D6),
+                                                      ? Color(0xFF6D4C41)
+                                                      : Color(0xFF8D6E63),
                                                   foregroundColor: Colors.white,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
@@ -377,7 +377,7 @@ class _FoodSelectState extends State<FoodSelect> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Color(0xFF6D4C41),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.2),
@@ -395,13 +395,13 @@ class _FoodSelectState extends State<FoodSelect> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: Colors.white,
                     ),
                   ),
                   ElevatedButton(
                     onPressed: _proceed,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFB1C4D6),
+                      backgroundColor: Color(0xFF8D6E63),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -438,7 +438,7 @@ class _FoodSelectState extends State<FoodSelect> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor:
-                isSelected ? const Color(0xFFB1C4D6) : const Color(0xFFF3F6FB),
+                isSelected ? const Color(0xFF8D6E63) : const Color(0xFFF5E9E2),
             foregroundColor: isSelected ? Colors.white : Colors.black87,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
