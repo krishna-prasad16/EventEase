@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:user/Screens/food_select.dart';
 import 'package:user/main.dart';
 
@@ -9,7 +10,7 @@ class Searchcatering extends StatefulWidget {
   State<Searchcatering> createState() => _SearchcateringState();
 }
 
-class _SearchcateringState extends State<Searchcatering> {
+class _SearchcateringState extends State<Searchcatering> with SingleTickerProviderStateMixin {
   List<Map<String, dynamic>> distList = [];
   List<Map<String, dynamic>> placeList = [];
   List<Map<String, dynamic>> caterList = [];
@@ -22,16 +23,28 @@ class _SearchcateringState extends State<Searchcatering> {
   bool isLoading = false;
   String? errorMessage;
 
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
     _fetchInitialData();
     searchController.addListener(_filterCatering);
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
     searchController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -47,7 +60,7 @@ class _SearchcateringState extends State<Searchcatering> {
         fetchCateringRatings().then((ratings) {
           setState(() {
             catererRatings = ratings;
-            print('Caterer Ratings: $catererRatings'); // Debug log
+            print('Caterer Ratings: $catererRatings');
           });
         }),
       ]);
@@ -152,7 +165,6 @@ class _SearchcateringState extends State<Searchcatering> {
         int rating = row['review_rating'] ?? 0;
         ratingsMap.putIfAbsent(id, () => []).add(rating);
       }
-      // Calculate average
       Map<String, double> avgRatings = {};
       ratingsMap.forEach((id, ratings) {
         avgRatings[id] = ratings.isEmpty
@@ -169,265 +181,278 @@ class _SearchcateringState extends State<Searchcatering> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
           "Search Catering",
-          style: TextStyle(
+          style: GoogleFonts.lora(
             fontWeight: FontWeight.w600,
             fontSize: 20,
+            color: Color(0xFF3E2723),
           ),
         ),
-        backgroundColor: const Color(0xFFF3F6FB),
-        elevation: 2,
+        iconTheme: IconThemeData(color: Color(0xFF8D6E63)),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchInitialData,
-        color: const Color(0xFFB1C4D6),
-        child: isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFB1C4D6)),
-                ),
-              )
-            : errorMessage != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Colors.red.withOpacity(0.6),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          errorMessage!,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _fetchInitialData,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFF3F6FB),
-                            foregroundColor: Colors.black87,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  )
-                : SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        color: Color(0xFF8D6E63),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8D6E63)),
+                  ),
+                )
+              : errorMessage != null
+                  ? Center(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Search Bar
-                          TextFormField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: "Search Catering",
-                              prefixIcon: const Icon(Icons.search, color: Color(0xFFB1C4D6)),
-                              filled: true,
-                              fillColor: const Color(0xFFF3F6FB),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide.none,
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
+                          Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Color(0xFFE57373),
                           ),
                           const SizedBox(height: 16),
-                          // District Dropdown
-                          _buildDropdown<String>(
-                            hint: "Select District",
-                            icon: Icons.location_city,
-                            items: distList,
-                            value: _selectedDistrict,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDistrict = value;
-                                _fetchPlaces(value!);
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          // Place Dropdown
-                          _buildDropdown<String>(
-                            hint: "Select Place",
-                            icon: Icons.place,
-                            items: placeList,
-                            value: _selectedPlace,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedPlace = value;
-                                _filterCatering();
-                              });
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          // Catering List Header
                           Text(
-                            "Available Catering Services",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
+                            errorMessage!,
+                            style: GoogleFonts.openSans(
+                              color: Color(0xFFE57373),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: _fetchInitialData,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF6D4C41),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Retry',
+                              style: GoogleFonts.openSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          // Catering List
-                          filteredCaterList.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    children: [
-                                      const SizedBox(height: 32),
-                                      Icon(
-                                        Icons.restaurant_menu,
-                                        size: 64,
-                                        color: Colors.grey.withOpacity(0.6),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      const Text(
-                                        "No catering services found",
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.grey,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      const Text(
-                                        "Try adjusting your search or filters",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: filteredCaterList.length,
-                                  itemBuilder: (context, index) {
-                                    final data = filteredCaterList[index];
-                                    final String catererId = data['id'].toString();
-                                    final double avgRating = catererRatings[catererId] ?? 0;
-
-                                    return Card(
-                                      elevation: 2,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      margin: const EdgeInsets.only(bottom: 12),
-                                      child: ListTile(
-                                        contentPadding: const EdgeInsets.all(12),
-                                        leading: data['cat_img'] != null
-                                            ? CircleAvatar(
-                                                radius: 30,
-                                                backgroundImage: NetworkImage(data['cat_img']),
-                                              )
-                                            : CircleAvatar(
-                                                radius: 30,
-                                                backgroundColor: const Color(0xFFF3F6FB),
-                                                child: Text(
-                                                  data['cat_name']?[0] ?? '?',
-                                                  style: const TextStyle(
-                                                    color: Color(0xFFB1C4D6),
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ),
-                                        title: Text(
-                                          data['cat_name'] ?? 'Unknown',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        subtitle: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              data['tbl_place']?['place_name'] ?? 'No Place',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                            Text(
-                                              data['tbl_place']?['tbl_district']?['dist_name'] ?? 'No District',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                            // Rating Row
-                                            Wrap(
-                                              crossAxisAlignment: WrapCrossAlignment.center,
-                                              children: [
-                                                ...List.generate(
-                                                  5,
-                                                  (star) => Icon(
-                                                    star < avgRating.round()
-                                                        ? Icons.star
-                                                        : Icons.star_border,
-                                                    color: Colors.amber,
-                                                    size: 18,
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
-                                                  style: const TextStyle(fontSize: 13, color: Colors.black54),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        trailing: ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => FoodSelect(catId: data['id']),
-                                              ),
-                                            );
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFFB1C4D6),
-                                            foregroundColor: Colors.white,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                                          ),
-                                          child: const Text(
-                                            'Proceed to add food',
-                                            style: TextStyle(fontSize: 14),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
+                        ],
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                hintText: "Search Catering",
+                                hintStyle: GoogleFonts.openSans(color: Colors.grey.shade600),
+                                prefixIcon: Icon(Icons.search, color: Color(0xFF8D6E63)),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
                                 ),
+                                contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              style: GoogleFonts.openSans(),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown<String>(
+                              hint: "Select District",
+                              icon: Icons.location_city,
+                              items: distList,
+                              value: _selectedDistrict,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedDistrict = value;
+                                  _fetchPlaces(value!);
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown<String>(
+                              hint: "Select Place",
+                              icon: Icons.place,
+                              items: placeList,
+                              value: _selectedPlace,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedPlace = value;
+                                  _filterCatering();
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              "Available Catering Services",
+                              style: GoogleFonts.lora(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF3E2723),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            filteredCaterList.isEmpty
+                                ? Center(
+                                    child: Column(
+                                      children: [
+                                        const SizedBox(height: 32),
+                                        Icon(
+                                          Icons.restaurant_menu,
+                                          size: 64,
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        const SizedBox(height: 16),
+                                        Text(
+                                          "No catering services found",
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 18,
+                                            color: Colors.grey.shade600,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          "Try adjusting your search or filters",
+                                          style: GoogleFonts.openSans(
+                                            fontSize: 14,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: filteredCaterList.length,
+                                    itemBuilder: (context, index) {
+                                      final data = filteredCaterList[index];
+                                      final String catererId = data['id'].toString();
+                                      final double avgRating = catererRatings[catererId] ?? 0;
+
+                                      return Card(
+                                        elevation: 2,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        margin: const EdgeInsets.only(bottom: 12),
+                                        color: Color(0xFFF9F6F2),
+                                        child: ListTile(
+                                          contentPadding: const EdgeInsets.all(12),
+                                          leading: data['cat_img'] != null
+                                              ? CircleAvatar(
+                                                  radius: 30,
+                                                  backgroundImage: NetworkImage(data['cat_img']),
+                                                )
+                                              : CircleAvatar(
+                                                  radius: 30,
+                                                  backgroundColor: Colors.white,
+                                                  child: Text(
+                                                    data['cat_name']?[0] ?? '?',
+                                                    style: GoogleFonts.openSans(
+                                                      color: Color(0xFF8D6E63),
+                                                      fontSize: 24,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                          title: Text(
+                                            data['cat_name'] ?? 'Unknown',
+                                            style: GoogleFonts.lora(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF3E2723),
+                                            ),
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                data['tbl_place']?['place_name'] ?? 'No Place',
+                                                style: GoogleFonts.openSans(
+                                                  fontSize: 14,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                              Text(
+                                                data['tbl_place']?['tbl_district']?['dist_name'] ?? 'No District',
+                                                style: GoogleFonts.openSans(
+                                                  fontSize: 14,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                              Wrap(
+                                                crossAxisAlignment: WrapCrossAlignment.center,
+                                                children: [
+                                                  ...List.generate(
+                                                    5,
+                                                    (star) => Icon(
+                                                      star < avgRating.round()
+                                                          ? Icons.star
+                                                          : Icons.star_border,
+                                                      color: Color(0xFFFFCC80),
+                                                      size: 18,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    avgRating > 0 ? avgRating.toStringAsFixed(1) : "No ratings",
+                                                    style: GoogleFonts.openSans(
+                                                      fontSize: 13,
+                                                      color: Colors.grey.shade600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          trailing: ElevatedButton(
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => FoodSelect(catId: data['id']),
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFF6D4C41),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                                            ),
+                                            child: Text(
+                                              'Proceed to add food',
+                                              style: GoogleFonts.openSans(
+                                                fontSize: 14,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                         ],
                       ),
                     ),
                   ),
+      ),
       ),
     );
   }
@@ -442,9 +467,10 @@ class _SearchcateringState extends State<Searchcatering> {
     return DropdownButtonFormField<T>(
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: const Color(0xFFB1C4D6)),
+        hintStyle: GoogleFonts.openSans(color: Colors.grey.shade600),
+        prefixIcon: Icon(icon, color: Color(0xFF8D6E63)),
         filled: true,
-        fillColor: const Color(0xFFF3F6FB),
+        fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -456,7 +482,7 @@ class _SearchcateringState extends State<Searchcatering> {
           value: item['id'] as T,
           child: Text(
             item['name'],
-            style: const TextStyle(color: Colors.black87),
+            style: GoogleFonts.openSans(color: Color(0xFF3E2723)),
           ),
         );
       }).toList(),
