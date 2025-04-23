@@ -1,3 +1,4 @@
+import 'package:decorators/catering/screens/cat_editprofile.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 import 'package:decorators/catering/widgets/custom_catering_appbar.dart';
@@ -127,7 +128,11 @@ class _CatPtofileState extends State<CatPtofile> {
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
                         onPressed: () {
-                          // Navigator.push(...);
+                          Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const CatEditprofile()),
+                      );
                         },
                         icon: const Icon(Icons.edit, color: Colors.white),
                         label: const Text(
