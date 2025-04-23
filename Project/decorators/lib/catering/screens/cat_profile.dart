@@ -1,3 +1,4 @@
+import 'package:decorators/catering/screens/cat_changepassword.dart';
 import 'package:decorators/catering/screens/cat_editprofile.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
@@ -150,7 +151,12 @@ class _CatPtofileState extends State<CatPtofile> {
                         const SizedBox(height: 16),
                         ElevatedButton.icon(
                           onPressed: () {
-                            // Navigator.push(...);
+                           Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CatChangepassword(),
+                              ),
+                            );
                           },
                           icon: const Icon(Icons.lock, color: Colors.white),
                           label: Text(

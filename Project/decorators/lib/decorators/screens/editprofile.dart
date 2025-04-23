@@ -1,18 +1,19 @@
 import 'dart:io';
 import 'package:decorators/catering/widgets/custom_catering_appbar.dart';
+import 'package:decorators/decorators/widgets/custom_dec_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CatEditprofile extends StatefulWidget {
-  const CatEditprofile({super.key});
+class Editprofile extends StatefulWidget {
+  const Editprofile({super.key});
 
   @override
-  State<CatEditprofile> createState() => _CatEditprofileState();
+  State<Editprofile> createState() => _EditprofileState();
 }
 
-class _CatEditprofileState extends State<CatEditprofile> {
+class _EditprofileState extends State<Editprofile> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _contactController = TextEditingController();
@@ -43,7 +44,7 @@ class _CatEditprofileState extends State<CatEditprofile> {
   Future<void> updateImage(String? url) async {
     try {
       String uid = supabase.auth.currentUser!.id;
-      await supabase.from('tbl_catering').update({'cat_img': url}).eq("id", uid);
+      await supabase.from('tbl_decorators').update({'dec_img': url}).eq("id", uid);
     } catch (e) {
       print("Image updation failed: $e");
     }
@@ -52,16 +53,16 @@ class _CatEditprofileState extends State<CatEditprofile> {
   Future<void> display() async {
     try {
       final response = await supabase
-          .from('tbl_catering')
+          .from('tbl_decorators')
           .select()
           .eq('id', supabase.auth.currentUser!.id)
           .single();
       setState(() {
         userData = response;
-        nameController.text = response['cat_name'] ?? '';
-        _emailController.text = response['cat_email'] ?? '';
-        _contactController.text = response['cat_contact'] ?? '';
-        _addressController.text = response['cat_address'] ?? '';
+        nameController.text = response['dec_name'] ?? '';
+        _emailController.text = response['dec_email'] ?? '';
+        _contactController.text = response['dec_contact'] ?? '';
+        _addressController.text = response['dec_address'] ?? '';
       });
     } catch (e) {
       print("ERROR FETCHING DATA:$e");
@@ -79,8 +80,8 @@ class _CatEditprofileState extends State<CatEditprofile> {
       isUpdating = true;
     });
     try {
-      await supabase.from('tbl_catering').update({
-        'cat_name': nameController.text.trim(),
+      await supabase.from('tbl_decorators').update({
+        'dec_name': nameController.text.trim(),
       }).eq('id', userData['id']);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -105,8 +106,8 @@ class _CatEditprofileState extends State<CatEditprofile> {
       String uid = supabase.auth.currentUser!.id;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = '$uid-photo-$timestamp';
-      await supabase.storage.from('catering').upload(fileName, _image!);
-      final imageUrl = supabase.storage.from('catering').getPublicUrl(fileName);
+      await supabase.storage.from('decorators').upload(fileName, _image!);
+      final imageUrl = supabase.storage.from('decorators').getPublicUrl(fileName);
       return imageUrl;
     } catch (e) {
       print('Image upload failed: $e');
@@ -126,7 +127,7 @@ class _CatEditprofileState extends State<CatEditprofile> {
       backgroundColor: const Color(0xFFF5F6FA), // Pastel light grey
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
-        child: CustomCateringAppBar(isScrolled: false),
+        child: CustomDecAppBar(isScrolled: false),
       ),
       body: Center(
         child: Container(
@@ -152,13 +153,13 @@ class _CatEditprofileState extends State<CatEditprofile> {
                             backgroundColor: const Color(0xFFECEFF8), // Pastel grey
                             backgroundImage: _image != null
                                 ? FileImage(_image!)
-                                : (userData['cat_img'] != null &&
-                                        userData['cat_img'].toString().isNotEmpty
-                                    ? NetworkImage(userData['cat_img'])
+                                : (userData['dec_img'] != null &&
+                                        userData['dec_img'].toString().isNotEmpty
+                                    ? NetworkImage(userData['dec_img'])
                                     : null) as ImageProvider<Object>?,
                             child: (_image == null &&
-                                    (userData['cat_img'] == null ||
-                                        userData['cat_img'].toString().isEmpty))
+                                    (userData['dec_img'] == null ||
+                                        userData['dec_img'].toString().isEmpty))
                                 ? const Icon(
                                     Icons.person,
                                     size: 70,

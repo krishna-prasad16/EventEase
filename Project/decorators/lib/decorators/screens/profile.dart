@@ -1,3 +1,4 @@
+import 'package:decorators/decorators/screens/editprofile.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 
@@ -122,7 +123,12 @@ class _DecprofileState extends State<Decprofile> {
                     const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // Navigator.push(...);
+                        Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Editprofile(),
+                              ),
+                            );
                       },
                       icon: const Icon(Icons.edit, color: Colors.white),
                       label: const Text(

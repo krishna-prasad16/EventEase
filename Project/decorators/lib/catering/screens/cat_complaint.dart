@@ -1,9 +1,7 @@
-
 import 'package:decorators/catering/widgets/custom_catering_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:google_fonts/google_fonts.dart';
 
 class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
@@ -35,7 +33,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
             'Feedback submitted',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFFA8C7FA), // Pastel blue
         ),
       );
       feedbackController.clear();
@@ -75,13 +73,16 @@ class _FeedbackPageState extends State<FeedbackPage> {
       await fetchfeedbackList();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Feedback deleted'), backgroundColor: Colors.green),
+          content: Text('Feedback deleted'),
+          backgroundColor: Color(0xFFA8C7FA), // Pastel blue
+        ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text('Error deleting feedback: $e'),
-            backgroundColor: Colors.red),
+          content: Text('Error deleting feedback: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -95,7 +96,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: const Color(0xFFF5F6FA), // Pastel light grey
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: CustomCateringAppBar(isScrolled: false),
@@ -105,219 +106,268 @@ class _FeedbackPageState extends State<FeedbackPage> {
           children: [
             Center(
               child: Container(
-                constraints: const BoxConstraints(maxWidth: 500),
-                padding: const EdgeInsets.all(20.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xffffffff),
-                  borderRadius: const BorderRadius.all(Radius.circular(15)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    )
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 10),
-                        Icon(Icons.feedback,
-                            size: 60, color: Color(0xFFbc6c25)),
-                        const SizedBox(height: 10),
-                        const Text(
-                          'We value your feedback!',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFbc6c25),
+                constraints: const BoxConstraints(maxWidth: 600), // Web-friendly width
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.feedback,
+                            size: 60,
+                            color: const Color(0xFFB8D8D8), // Pastel teal
                           ),
-                        ),
-                        const SizedBox(height: 30),
-                        TextFormField(
-                          controller: feedbackController,
-                          decoration: InputDecoration(
-                            labelText: 'Feedback Title',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                          const SizedBox(height: 16),
+                          Text(
+                            'We value your feedback!',
+                            style: GoogleFonts.poppins(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF3A3A3A),
                             ),
                           ),
-                          validator: (value) =>
-                              value == null || value.trim().isEmpty
-                                  ? 'Title is required'
-                                  : null,
-                        ),
-                        const SizedBox(height: 20),
-                        TextFormField(
-                          minLines: 3,
-                          maxLines: 6,
-                          keyboardType: TextInputType.multiline,
-                          controller: detailsController,
-                          decoration: InputDecoration(
-                            labelText: 'Details',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                          const SizedBox(height: 24),
+                          TextFormField(
+                            controller: feedbackController,
+                            decoration: InputDecoration(
+                              labelText: 'Feedback Title',
+                              labelStyle: GoogleFonts.poppins(
+                                color: const Color(0xFF6B7280),
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC), // Pastel off-white
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.title,
+                                color: Color(0xFFB8D8D8), // Pastel teal
+                              ),
                             ),
+                            style: GoogleFonts.poppins(),
+                            validator: (value) =>
+                                value == null || value.trim().isEmpty ? 'Title is required' : null,
                           ),
-                          validator: (value) =>
-                              value == null || value.trim().isEmpty
-                                  ? 'Details are required'
-                                  : null,
-                        ),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: isLoading ? null : submitFeedback,
-                            icon: isLoading
-                                ? SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            minLines: 3,
+                            maxLines: 6,
+                            keyboardType: TextInputType.multiline,
+                            controller: detailsController,
+                            decoration: InputDecoration(
+                              labelText: 'Details',
+                              labelStyle: GoogleFonts.poppins(
+                                color: const Color(0xFF6B7280),
+                              ),
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              prefixIcon: const Icon(
+                                Icons.description,
+                                color: Color(0xFFB8D8D8),
+                              ),
+                            ),
+                            style: GoogleFonts.poppins(),
+                            validator: (value) =>
+                                value == null || value.trim().isEmpty ? 'Details are required' : null,
+                          ),
+                          const SizedBox(height: 32),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: isLoading ? null : submitFeedback,
+                              icon: isLoading
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.send,
                                       color: Colors.white,
-                                      strokeWidth: 2,
                                     ),
-                                  )
-                                : Icon(
-                                    Icons.send,
-                                    color: Colors.white,
-                                  ),
-                            label: Text(
-                              isLoading ? 'Submitting...' : 'Submit Feedback',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Color(0xfff8f9fa),
+                              label: Text(
+                                isLoading ? 'Submitting...' : 'Submit Feedback',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFbc6c25),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFA8C7FA), // Pastel blue
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 2,
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 30),
-           Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
+            Container(
+              constraints: const BoxConstraints(maxWidth: 600),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
                     "Your Feedback",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFbc6c25),
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF3A3A3A),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                feedbackList.isEmpty
-                    ? const Text(
-                        "No feedback submitted yet.",
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    : ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: feedbackList.length,
-                        separatorBuilder: (_, __) => SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final fb = feedbackList[index];
-                          return Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFf6f6f6),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        fb['complaint_title'] ?? '',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          color: Color(0xFFbc6c25),
+                  const SizedBox(height: 16),
+                  feedbackList.isEmpty
+                      ? Text(
+                          "No feedback submitted yet.",
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF6B7280),
+                          ),
+                        )
+                      : ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: feedbackList.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            final fb = feedbackList[index];
+                            return Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC), // Pastel off-white
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          fb['complaint_title'] ?? '',
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                            color: const Color(0xFF3A3A3A),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red, size: 22),
-                                      tooltip: 'Delete',
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text('Delete Feedback'),
-                                            content: const Text('Are you sure you want to delete this feedback?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, false),
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(context, true),
-                                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                        if (confirm == true) {
-                                          await deleteFeedback(fb['id']);
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  fb['complaint_content'] ?? '',
-                                  style: const TextStyle(fontSize: 15),
-                                ),
-                                const SizedBox(height: 8),
-                                if (fb['complaint_reply'] != null && fb['complaint_reply'].toString().trim().isNotEmpty)
-                                  Container(
-                                    margin: const EdgeInsets.only(top: 8),
-                                    padding: const EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withOpacity(0.08),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Icon(Icons.reply, color: Colors.green, size: 20),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            fb['complaint_reply'],
-                                            style: const TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.delete,
+                                          color: Colors.red,
+                                          size: 22,
                                         ),
-                                      ],
+                                        tooltip: 'Delete',
+                                        onPressed: () async {
+                                          final confirm = await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text(
+                                                'Delete Feedback',
+                                                style: GoogleFonts.poppins(),
+                                              ),
+                                              content: Text(
+                                                'Are you sure you want to delete this feedback?',
+                                                style: GoogleFonts.poppins(),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: Text(
+                                                    'Cancel',
+                                                    style: GoogleFonts.poppins(),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: Text(
+                                                    'Delete',
+                                                    style: GoogleFonts.poppins(
+                                                      color: Colors.red,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (confirm == true) {
+                                            await deleteFeedback(fb['id']);
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    fb['complaint_content'] ?? '',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      color: const Color(0xFF6B7280),
                                     ),
                                   ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                                  const SizedBox(height: 8),
+                                  if (fb['complaint_reply'] != null &&
+                                      fb['complaint_reply'].toString().trim().isNotEmpty)
+                                    Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFB8D8D8).withOpacity(0.2), // Pastel teal
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Icon(
+                                            Icons.reply,
+                                            color: Color(0xFFB8D8D8),
+                                            size: 20,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              fb['complaint_reply'],
+                                              style: GoogleFonts.poppins(
+                                                color: const Color(0xFFB8D8D8),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
