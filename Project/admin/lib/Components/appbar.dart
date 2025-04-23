@@ -7,49 +7,79 @@ class Appbar1 extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // SizedBox(height: 15),
         Container(
-          height: 50,
-          decoration: BoxDecoration(color: Color(0xffccdad1)),
-          child: // Admin profile
-              Row(
+          height: 60,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: const BoxDecoration(
+            color: Color(0xff065a60), // Match sidebar's teal background
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const SizedBox(width: 1100),
-              ClipOval(
-                child: Image.asset(
-                  "assets/d.jpg",
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white.withOpacity(0.05),
+                      Colors.white.withOpacity(0.15),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Admin",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 14,
+                child: Row(
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        "assets/d.jpg",
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
-                  Text(
-                    "MEREDITH",
-                    style: TextStyle(
-                      color: const Color.fromARGB(255, 17, 16, 16),
-                      fontSize: 12,
+                    const SizedBox(width: 12),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Admin",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontSize: 14,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        Text(
+                          "MEREDITH",
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.grey[400],
-                size: 16,
+                    const SizedBox(width: 12),
+                    // Icon(
+                    //   Icons.keyboard_arrow_down,
+                    //   color: Colors.amber.withOpacity(0.7),
+                    //   size: 18,
+                    // ),
+                  ],
+                ),
               ),
             ],
           ),
