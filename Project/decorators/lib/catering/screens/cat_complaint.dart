@@ -1,4 +1,5 @@
 
+import 'package:decorators/catering/widgets/custom_catering_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 
@@ -95,9 +96,9 @@ class _FeedbackPageState extends State<FeedbackPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xfff8f9fa),
-      appBar: AppBar(
-        backgroundColor: const Color(0xffffffff),
-        title: const Text('Feedback'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomCateringAppBar(isScrolled: false),
       ),
       body: SingleChildScrollView(
         child: Column(
