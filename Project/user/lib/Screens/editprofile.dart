@@ -277,7 +277,12 @@ class _EditProfileState extends State<EditProfile> with SingleTickerProviderStat
                           ),
                           elevation: 0,
                         ),
-                        onPressed: isUpdating ? null : updateData,
+                        onPressed: isUpdating ? null : () async {
+                          await updateData();
+                          if (mounted && !isUpdating) {
+                            Navigator.pop(context); // Go back to Profile page
+                          }
+                        },
                       ),
                     ),
                   ],

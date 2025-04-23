@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:user/main.dart';
 
 class Changepwd extends StatefulWidget {
   const Changepwd({super.key});
 
   @override
-  State<Changepwd> createState() => _ChangepwdpwdState();
+  State<Changepwd> createState() => _ChangepwdState();
 }
 
-class _ChangepwdpwdState extends State<Changepwd> {
+class _ChangepwdState extends State<Changepwd> with SingleTickerProviderStateMixin {
   final TextEditingController currentpwdController = TextEditingController();
   final TextEditingController newpwdController = TextEditingController();
   final TextEditingController confirmpwdController = TextEditingController();
@@ -16,6 +17,32 @@ class _ChangepwdpwdState extends State<Changepwd> {
   bool showCurrent = false;
   bool showNew = false;
   bool showConfirm = false;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchpass();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    currentpwdController.dispose();
+    newpwdController.dispose();
+    confirmpwdController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
   Future<void> updatepwd() async {
     final String currentPwd = currentpwdController.text.trim();
@@ -46,7 +73,7 @@ class _ChangepwdpwdState extends State<Changepwd> {
             'Password Updated',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.green,
+          backgroundColor: Color(0xFF3E2723),
         ),
       );
       await fetchpass();
@@ -78,96 +105,145 @@ class _ChangepwdpwdState extends State<Changepwd> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchpass();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff8f9fa),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Change Password', style: TextStyle(color: Colors.black)),
-        iconTheme: const IconThemeData(color: Colors.black),
-        elevation: 1,
+        elevation: 0,
+        title: Text(
+          'Change Password',
+          style: GoogleFonts.lora(
+            color: Color(0xFF3E2723),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFF8D6E63)),
       ),
-      body: Center(
-        child: Card(
-          elevation: 6,
-          margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const Text(
-                    'Update your password',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFbc6c25)),
-                  ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    controller: currentpwdController,
-                    obscureText: !showCurrent,
-                    decoration: InputDecoration(
-                      labelText: 'Current Password',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(showCurrent ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => showCurrent = !showCurrent),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Center(
+          child: Card(
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            color: Color(0xFFF9F6F2),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                      'Update your password',
+                      style: GoogleFonts.lora(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF3E2723),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  TextFormField(
-                    controller: newpwdController,
-                    obscureText: !showNew,
-                    decoration: InputDecoration(
-                      labelText: 'New Password',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(showNew ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => showNew = !showNew),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  TextFormField(
-                    controller: confirmpwdController,
-                    obscureText: !showConfirm,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        icon: Icon(showConfirm ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () => setState(() => showConfirm = !showConfirm),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: updatepwd,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFbc6c25),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    const SizedBox(height: 30),
+                    TextFormField(
+                      controller: currentpwdController,
+                      obscureText: !showCurrent,
+                      decoration: InputDecoration(
+                        labelText: 'Current Password',
+                        labelStyle: GoogleFonts.openSans(
+                          color: Colors.grey.shade600,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(Icons.lock_outline, color: Color(0xFF8D6E63)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showCurrent ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF8D6E63),
+                          ),
+                          onPressed: () => setState(() => showCurrent = !showCurrent),
                         ),
                       ),
-                      child: const Text(
-                        'Update',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: GoogleFonts.openSans(),
+                    ),
+                    const SizedBox(height: 18),
+                    TextFormField(
+                      controller: newpwdController,
+                      obscureText: !showNew,
+                      decoration: InputDecoration(
+                        labelText: 'New Password',
+                        labelStyle: GoogleFonts.openSans(
+                          color: Colors.grey.shade600,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFF8D6E63)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showNew ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF8D6E63),
+                          ),
+                          onPressed: () => setState(() => showNew = !showNew),
+                        ),
+                      ),
+                      style: GoogleFonts.openSans(),
+                    ),
+                    const SizedBox(height: 18),
+                    TextFormField(
+                      controller: confirmpwdController,
+                      obscureText: !showConfirm,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        labelStyle: GoogleFonts.openSans(
+                          color: Colors.grey.shade600,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon: Icon(Icons.lock, color: Color(0xFF8D6E63)),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            showConfirm ? Icons.visibility : Icons.visibility_off,
+                            color: Color(0xFF8D6E63),
+                          ),
+                          onPressed: () => setState(() => showConfirm = !showConfirm),
+                        ),
+                      ),
+                      style: GoogleFonts.openSans(),
+                    ),
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: updatepwd,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF6D4C41),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          'Update',
+                          style: GoogleFonts.openSans(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
