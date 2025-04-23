@@ -80,7 +80,7 @@ class _SideBarState extends State<SideBar> with SingleTickerProviderStateMixin {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white,
-                    backgroundImage: const AssetImage('assets/d.jpg'),
+                    backgroundImage: const AssetImage('assets/women3.jpg'),
                   ),
                   const SizedBox(width: 16),
                   Column(
