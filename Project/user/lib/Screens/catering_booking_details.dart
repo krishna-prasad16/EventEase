@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:user/Screens/payment.dart';
 
@@ -10,16 +11,33 @@ class CateringBookingDetails extends StatefulWidget {
   State<CateringBookingDetails> createState() => _CateringBookingDetailsState();
 }
 
-class _CateringBookingDetailsState extends State<CateringBookingDetails> {
+class _CateringBookingDetailsState extends State<CateringBookingDetails> with SingleTickerProviderStateMixin {
   Map<String, dynamic> booking = {};
   List<dynamic> foodList = [];
   bool isLoading = true;
   String? errorMessage;
 
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
     fetchBookingDetails();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchBookingDetails() async {
@@ -28,14 +46,12 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
       errorMessage = null;
     });
     try {
-      // Fetch booking details
       final bookingResponse = await Supabase.instance.client
           .from('tbl_cateringbooking')
           .select('id, catering_id, booking_fordate, booking_status, booking_budget, booking_venue, booking_total, booking_detail, tbl_eventtype(eventtype_name), tbl_user(user_name)')
           .eq('id', widget.bookingId)
           .single();
 
-      // Fetch food details for this booking
       final foodResponse = await Supabase.instance.client
           .from('tbl_bookingfood')
           .select('*, tbl_food(food_name, food_amount)')
@@ -54,7 +70,6 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
     }
   }
 
-  // Map status code to label and color
   String getStatusLabel(int? status) {
     switch (status) {
       case 0:
@@ -77,301 +92,26 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
   Color getStatusColor(int? status) {
     switch (status) {
       case 0:
-        return Colors.amber;
+        return Color(0xFFFFCC80);
       case 1:
-        return Colors.blue;
+        return Color(0xFF64B5F6);
       case 2:
-        return Colors.red;
+        return Color(0xFFE57373);
       case 3:
-        return Colors.green;
+        return Color(0xFF81C784);
       case 4:
-        return Colors.redAccent;
+        return Color(0xFFE57373);
       case 5:
-        return Colors.greenAccent;
+        return Color(0xFF81C784);
       default:
-        return Colors.grey;
+        return Colors.grey.shade600;
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Catering Booking Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color.fromARGB(255, 208, 205, 212),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: fetchBookingDetails,
-          ),
-        ],
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        errorMessage!,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: fetchBookingDetails,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
-              : Center(
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Status
-                            _buildDetailRow(
-                              icon: Icons.info,
-                              label: 'Status',
-                              value: getStatusLabel(booking['booking_status']),
-                              valueColor: getStatusColor(booking['booking_status']),
-                              isBold: true,
-                            ),
-                            const SizedBox(height: 12),
-                            // Show Estimated Value and Buttons if status is 1
-                            if (booking['booking_status'] == 1) ...[
-                              _buildDetailRow(
-                                icon: Icons.attach_money,
-                                label: 'Estimated Value',
-                                value: '₹${booking['booking_total'] ?? 'N/A'}',
-                                isBold: true,
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Handle Accept and Pay action
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PaymentGatewayScreen(
-                                            id: booking['id'],
-                                            amt: booking['booking_total'],
-                                            isCatering: true,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.green,
-                                    ),
-                                    child: const Text('Accept and Pay'),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return AlertDialog(
-                                            title: const Text('Reject Booking'),
-                                            content: const Text('Are you sure you want to reject this booking?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text('Cancel'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  try {
-                                                    await Supabase.instance.client
-                                                        .from('tbl_cateringbooking')
-                                                        .update({'booking_status': 4})
-                                                        .eq('id', booking['id']);
-                                                    Navigator.pop(context);
-                                                    fetchBookingDetails(); // Refresh
-                                                  } catch (e) {
-                                                    print('Error rejecting booking: $e');
-                                                  }
-                                                },
-                                                child: const Text('Reject'),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                    ),
-                                    child: const Text('Reject'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            const SizedBox(height: 12),
-                            // Event Type
-                            _buildDetailRow(
-                              icon: Icons.event,
-                              label: 'Event Type',
-                              value: booking['tbl_eventtype']?['eventtype_name'] ?? 'N/A',
-                            ),
-                            const SizedBox(height: 12),
-                            // Date
-                            _buildDetailRow(
-                              icon: Icons.calendar_today,
-                              label: 'Date',
-                              value: booking['booking_fordate'] ?? 'N/A',
-                            ),
-                            const SizedBox(height: 12),
-                            // Budget
-                            _buildDetailRow(
-                              icon: Icons.account_balance_wallet,
-                              label: 'Budget',
-                              value: '₹${booking['booking_budget'] ?? 'N/A'}',
-                            ),
-                            const SizedBox(height: 12),
-                            // Venue
-                            _buildDetailRow(
-                              icon: Icons.location_on,
-                              label: 'Venue',
-                              value: booking['booking_venue'] ?? 'N/A',
-                            ),
-                            const SizedBox(height: 12),
-                            // Details
-                            _buildDetailRow(
-                              icon: Icons.description,
-                              label: 'Details',
-                              value: booking['booking_detail'] ?? 'N/A',
-                            ),
-                            const SizedBox(height: 12),
-                            // Booked By
-                            _buildDetailRow(
-                              icon: Icons.person,
-                              label: 'Booked By',
-                              value: booking['tbl_user']?['user_name'] ?? 'N/A',
-                            ),
-                            const SizedBox(height: 20),
-                            const Divider(),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Food Details',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            foodList.isEmpty
-                                ? const Text('No food items selected.')
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    itemCount: foodList.length,
-                                    itemBuilder: (context, index) {
-                                      final food = foodList[index]['tbl_food'];
-                                      return ListTile(
-                                        title: Text(food?['food_name'] ?? ''),
-                                        trailing: Text('₹${food?['food_amount'] ?? ''}'),
-                                      );
-                                    },
-                                  ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                if (booking['booking_status'] == 5)
-                                  ElevatedButton.icon(
-                                    onPressed: showCateringRatingDialog,
-                                    icon: const Icon(Icons.star),
-                                    label: const Text('Rate'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.amber,
-                                    ),
-                                  ),
-                                if (booking['booking_status'] == 1 ||
-                                    booking['booking_status'] == 3 ||
-                                    booking['booking_status'] == 5)
-                                  ElevatedButton.icon(
-                                    onPressed: showCateringComplaintDialog,
-                                    icon: const Icon(Icons.report),
-                                    label: const Text('Report Complaint'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-    );
-  }
-
-  Widget _buildDetailRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    Color? valueColor,
-    bool isBold = false,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          color: Colors.grey[600],
-          size: 20,
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                  color: valueColor ?? Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Submit rating to Supabase
   Future<void> submitCateringRating(int ratingValue, String comment) async {
     try {
       await Supabase.instance.client.from('tbl_review').insert({
-        'catering_id': booking['catering_id'], // Make sure you fetch catering_id in your booking query!
+        'catering_id': booking['catering_id'],
         'review_rating': ratingValue,
         'review_content': comment,
       });
@@ -386,11 +126,10 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
     }
   }
 
-  // Submit complaint to Supabase
   Future<void> submitCateringComplaint(String title, String content) async {
     try {
       await Supabase.instance.client.from('tbl_complaint').insert({
-        'catering_id': booking['catering_id'], // Make sure you fetch catering_id in your booking query!
+        'catering_id': booking['catering_id'],
         'complaint_title': title,
         'complaint_content': content,
       });
@@ -412,11 +151,11 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rate Catering'),
+        title: Text('Rate Catering', style: GoogleFonts.lora()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select Rating:'),
+            Text('Select Rating:', style: GoogleFonts.openSans()),
             StatefulBuilder(
               builder: (context, setState) => Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -424,7 +163,7 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
                   return IconButton(
                     icon: Icon(
                       index < ratingValue ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
+                      color: Color(0xFFFFCC80),
                     ),
                     onPressed: () {
                       setState(() {
@@ -437,7 +176,17 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
             ),
             TextField(
               controller: commentController,
-              decoration: const InputDecoration(hintText: 'Enter your comment (optional)'),
+              decoration: InputDecoration(
+                hintText: 'Enter your comment (optional)',
+                hintStyle: GoogleFonts.openSans(color: Colors.grey.shade600),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: GoogleFonts.openSans(),
               maxLines: 3,
             ),
           ],
@@ -445,7 +194,7 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.openSans()),
           ),
           TextButton(
             onPressed: () {
@@ -458,7 +207,7 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
                 );
               }
             },
-            child: const Text('Submit'),
+            child: Text('Submit', style: GoogleFonts.openSans(color: Color(0xFF6D4C41))),
           ),
         ],
       ),
@@ -472,17 +221,38 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Report Complaint'),
+        title: Text('Report Complaint', style: GoogleFonts.lora()),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: titleController,
-              decoration: const InputDecoration(hintText: 'Complaint Title'),
+              decoration: InputDecoration(
+                hintText: 'Complaint Title',
+                hintStyle: GoogleFonts.openSans(color: Colors.grey.shade600),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: GoogleFonts.openSans(),
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: contentController,
-              decoration: const InputDecoration(hintText: 'Complaint Details'),
+              decoration: InputDecoration(
+                hintText: 'Complaint Details',
+                hintStyle: GoogleFonts.openSans(color: Colors.grey.shade600),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: GoogleFonts.openSans(),
               maxLines: 3,
             ),
           ],
@@ -490,7 +260,7 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: GoogleFonts.openSans()),
           ),
           TextButton(
             onPressed: () {
@@ -503,10 +273,367 @@ class _CateringBookingDetailsState extends State<CateringBookingDetails> {
                 );
               }
             },
-            child: const Text('Submit'),
+            child: Text('Submit', style: GoogleFonts.openSans(color: Color(0xFF6D4C41))),
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Catering Booking Details',
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF3E2723),
+          ),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFF8D6E63)),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Color(0xFF8D6E63)),
+            onPressed: fetchBookingDetails,
+          ),
+        ],
+      ),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: isLoading
+            ? Center(child: CircularProgressIndicator(color: Color(0xFF8D6E63)))
+            : errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          errorMessage!,
+                          style: GoogleFonts.openSans(
+                            color: Color(0xFFE57373),
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton(
+                          onPressed: fetchBookingDetails,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6D4C41),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Retry',
+                            style: GoogleFonts.openSans(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Center(
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      color: Color(0xFFF9F6F2),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildDetailRow(
+                                icon: Icons.info,
+                                label: 'Status',
+                                value: getStatusLabel(booking['booking_status']),
+                                valueColor: getStatusColor(booking['booking_status']),
+                                isBold: true,
+                              ),
+                              const SizedBox(height: 16),
+                              if (booking['booking_status'] == 1) ...[
+                                _buildDetailRow(
+                                  icon: Icons.attach_money,
+                                  label: 'Estimated Value',
+                                  value: '₹${booking['booking_total'] ?? 'N/A'}',
+                                  isBold: true,
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => PaymentGatewayScreen(
+                                              id: booking['id'],
+                                              amt: booking['booking_total'],
+                                              isCatering: true,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFF81C784),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      ),
+                                      child: Text(
+                                        'Accept and Pay',
+                                        style: GoogleFonts.openSans(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text('Reject Booking', style: GoogleFonts.lora()),
+                                              content: Text(
+                                                'Are you sure you want to reject this booking?',
+                                                style: GoogleFonts.openSans(),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text('Cancel', style: GoogleFonts.openSans()),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    try {
+                                                      await Supabase.instance.client
+                                                          .from('tbl_cateringbooking')
+                                                          .update({'booking_status': 4})
+                                                          .eq('id', booking['id']);
+                                                      Navigator.pop(context);
+                                                      fetchBookingDetails();
+                                                    } catch (e) {
+                                                      print('Error rejecting booking: $e');
+                                                    }
+                                                  },
+                                                  child: Text(
+                                                    'Reject',
+                                                    style: GoogleFonts.openSans(color: Color(0xFFE57373)),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFFE57373),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      ),
+                                      child: Text(
+                                        'Reject',
+                                        style: GoogleFonts.openSans(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.event,
+                                label: 'Event Type',
+                                value: booking['tbl_eventtype']?['eventtype_name'] ?? 'N/A',
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.calendar_today,
+                                label: 'Date',
+                                value: booking['booking_fordate'] ?? 'N/A',
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.account_balance_wallet,
+                                label: 'Budget',
+                                value: '₹${booking['booking_budget'] ?? 'N/A'}',
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.location_on,
+                                label: 'Venue',
+                                value: booking['booking_venue'] ?? 'N/A',
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.description,
+                                label: 'Details',
+                                value: booking['booking_detail'] ?? 'N/A',
+                              ),
+                              const SizedBox(height: 16),
+                              _buildDetailRow(
+                                icon: Icons.person,
+                                label: 'Booked By',
+                                value: booking['tbl_user']?['user_name'] ?? 'N/A',
+                              ),
+                              const SizedBox(height: 24),
+                              Divider(color: Colors.grey.shade300),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Food Details',
+                                style: GoogleFonts.lora(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF3E2723),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              foodList.isEmpty
+                                  ? Text(
+                                      'No food items selected.',
+                                      style: GoogleFonts.openSans(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    )
+                                  : ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: foodList.length,
+                                      itemBuilder: (context, index) {
+                                        final food = foodList[index]['tbl_food'];
+                                        return ListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          title: Text(
+                                            food?['food_name'] ?? '',
+                                            style: GoogleFonts.openSans(
+                                              fontSize: 14,
+                                              color: Color(0xFF3E2723),
+                                            ),
+                                          ),
+                                          trailing: Text(
+                                            '₹${food?['food_amount'] ?? ''}',
+                                            style: GoogleFonts.openSans(
+                                              fontSize: 14,
+                                              color: Color(0xFF3E2723),
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                              const SizedBox(height: 24),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  if (booking['booking_status'] == 5)
+                                    ElevatedButton.icon(
+                                      onPressed: showCateringRatingDialog,
+                                      icon: Icon(Icons.star, color: Colors.white),
+                                      label: Text(
+                                        'Rate',
+                                        style: GoogleFonts.openSans(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFFFFCC80),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      ),
+                                    ),
+                                  if (booking['booking_status'] == 1 ||
+                                      booking['booking_status'] == 3 ||
+                                      booking['booking_status'] == 5)
+                                    ElevatedButton.icon(
+                                      onPressed: showCateringComplaintDialog,
+                                      icon: Icon(Icons.report, color: Colors.white),
+                                      label: Text(
+                                        'Report Complaint',
+                                        style: GoogleFonts.openSans(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFFE57373),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow({
+    required IconData icon,
+    required String label,
+    required String value,
+    Color? valueColor,
+    bool isBold = false,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          icon,
+          color: Color(0xFF8D6E63),
+          size: 20,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.openSans(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: GoogleFonts.openSans(
+                  fontSize: 14,
+                  fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+                  color: valueColor ?? Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
