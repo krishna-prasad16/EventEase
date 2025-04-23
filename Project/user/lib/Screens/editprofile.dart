@@ -81,7 +81,7 @@ class _EditProfileState extends State<EditProfile> with SingleTickerProviderStat
       setState(() {
         userData = response;
         nameController.text = response['user_name'] ?? '';
-        _emailController.text = response['user_contact'] ?? '';
+        _emailController.text = response['user_email'] ?? '';
       });
     } catch (e) {
       print("ERROR FETCHING DATA:$e");
@@ -95,12 +95,19 @@ class _EditProfileState extends State<EditProfile> with SingleTickerProviderStat
       );
       return;
     }
+     if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(' Email cannot be empty!')),
+      );
+      return;
+    }
     setState(() {
       isUpdating = true;
     });
     try {
       await supabase.from('tbl_user').update({
         'user_name': nameController.text.trim(),
+        'user_email':_emailController.text.trim(),
       }).eq('id', userData['id']);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -225,19 +232,18 @@ class _EditProfileState extends State<EditProfile> with SingleTickerProviderStat
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _emailController,
-                      enabled: false,
                       decoration: InputDecoration(
                         labelText: 'Email',
                         labelStyle: GoogleFonts.openSans(
                           color: Colors.grey.shade600,
                         ),
                         filled: true,
-                        fillColor: Colors.grey.shade100,
+                        fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        prefixIcon: Icon(Icons.email, color: Color(0xFF8D6E63)),
+                        prefixIcon: Icon(Icons.mail_outline, color: Color(0xFF8D6E63)),
                       ),
                       style: GoogleFonts.openSans(),
                     ),
