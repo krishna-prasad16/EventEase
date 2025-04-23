@@ -10,7 +10,7 @@ class Home extends StatefulWidget {
   State<Home> createState() => _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   int userCount = 0;
   int decoratorCount = 0;
   int cateringCount = 0;
@@ -18,11 +18,28 @@ class _HomeState extends State<Home> {
   List<double> monthlyAmounts = List.filled(12, 0);
   bool isLoading = true;
   String? errorMessage;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+    _animationController.forward();
     fetchDashboardStats();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchDashboardStats() async {
@@ -99,59 +116,109 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1B263B)))
           : errorMessage != null
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        errorMessage!,
-                        style: const TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 20,
+                          offset: const Offset(0, 12),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: fetchDashboardStats,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1B263B),
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          errorMessage!,
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
                         ),
-                        child: const Text(
-                          'Retry',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: fetchDashboardStats,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF065a60),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.amber.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'Retry',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 )
               : RefreshIndicator(
                   onRefresh: fetchDashboardStats,
-                  color: const Color(0xFF1B263B),
+                  color: const Color(0xFF065a60),
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Admin Dashboard',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF1B263B),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.1),
+                                shape: BoxShape.circle,
                               ),
+                              child: const Icon(
+                                Icons.dashboard,
+                                color: Color(0xFF065a60),
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Admin Dashboard',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF1B263B),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Overview of key metrics and performance',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Colors.grey[600],
-                              ),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: const Color(0xFF64748B),
+                            letterSpacing: 0.2,
+                          ),
                         ),
                         const SizedBox(height: 24),
                         // Statistics Grid
@@ -165,7 +232,7 @@ class _HomeState extends State<Home> {
                           physics: const NeverScrollableScrollPhysics(),
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
-                          childAspectRatio: 1.8,
+                          childAspectRatio: 2.0,
                           children: [
                             _buildStatCard(
                               'Users',
@@ -197,9 +264,26 @@ class _HomeState extends State<Home> {
                         ),
                         const SizedBox(height: 32),
                         // Monthly Graph
-                        Card(
-                          elevation: 6,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFFF8FAFC),
+                                Color(0xFFEFF7FF),
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 20,
+                                offset: const Offset(0, 12),
+                              ),
+                            ],
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(24),
                             child: Column(
@@ -207,10 +291,12 @@ class _HomeState extends State<Home> {
                               children: [
                                 Text(
                                   'Monthly Revenue (2025)',
-                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1B263B),
-                                      ),
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF1B263B),
+                                    letterSpacing: 0.3,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                                 SizedBox(
@@ -225,7 +311,7 @@ class _HomeState extends State<Home> {
                                             : 1000,
                                         getDrawingHorizontalLine: (value) {
                                           return FlLine(
-                                            color: Colors.grey[300]!,
+                                            color: const Color(0xFFE5E7EB),
                                             strokeWidth: 1,
                                           );
                                         },
@@ -245,7 +331,7 @@ class _HomeState extends State<Home> {
                                                   '₹${(value / 1000).toStringAsFixed(0)}k',
                                                   style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: Color(0xFF1B263B),
+                                                    color: Color(0xFF64748B),
                                                   ),
                                                 ),
                                               );
@@ -276,7 +362,7 @@ class _HomeState extends State<Home> {
                                                   months[value.toInt()],
                                                   style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: Color(0xFF1B263B),
+                                                    color: Color(0xFF64748B),
                                                   ),
                                                 ),
                                               );
@@ -292,7 +378,7 @@ class _HomeState extends State<Home> {
                                       ),
                                       borderData: FlBorderData(
                                         show: true,
-                                        border: Border.all(color: Colors.grey[300]!, width: 1),
+                                        border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
                                       ),
                                       lineBarsData: [
                                         LineChartBarData(
@@ -301,11 +387,11 @@ class _HomeState extends State<Home> {
                                             (index) => FlSpot(index.toDouble(), monthlyAmounts[index]),
                                           ),
                                           isCurved: true,
-                                          color: const Color(0xFF415A77),
+                                          color: const Color(0xFF065a60),
                                           barWidth: 4,
                                           belowBarData: BarAreaData(
                                             show: true,
-                                            color: const Color(0xFF415A77).withOpacity(0.15),
+                                            color: const Color(0xFF065a60).withOpacity(0.15),
                                           ),
                                           dotData: FlDotData(
                                             show: true,
@@ -326,11 +412,12 @@ class _HomeState extends State<Home> {
                                                 '₹${NumberFormat.compact().format(spot.y)}',
                                                 const TextStyle(
                                                   color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                               );
                                             }).toList();
                                           },
+                                          getTooltipColor: (LineBarSpot spot) => const Color(0xFF065a60),
                                         ),
                                         handleBuiltInTouches: true,
                                       ),
@@ -348,14 +435,32 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
-                );
+                ),
+    );
   }
 
   Widget _buildStatCard(String title, String value, IconData icon, Color bgColor, {Color? textColor}) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: bgColor,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            bgColor.withOpacity(0.9),
+            bgColor,
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Row(
@@ -364,7 +469,11 @@ class _HomeState extends State<Home> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.amber.withOpacity(0.3),
+                  width: 1,
+                ),
               ),
               child: Icon(icon, size: 28, color: textColor ?? Colors.white),
             ),
@@ -376,18 +485,20 @@ class _HomeState extends State<Home> {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: textColor ?? Colors.white,
+                    letterSpacing: 0.3,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
                     color: textColor ?? Colors.white,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ],
