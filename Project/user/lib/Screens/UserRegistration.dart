@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'login.dart'; // Ensure this import is correct based on your project structure
+import 'login.dart';
 
 class Registration extends StatefulWidget {
   const Registration({super.key});
@@ -11,12 +12,11 @@ class Registration extends StatefulWidget {
   State<Registration> createState() => _RegistrationState();
 }
 
-class _RegistrationState extends State<Registration> {
+class _RegistrationState extends State<Registration> with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   File? _selectedImage;
   bool _isLoading = false;
@@ -25,16 +25,34 @@ class _RegistrationState extends State<Registration> {
   final SupabaseClient supabase = Supabase.instance.client;
   final ImagePicker _picker = ImagePicker();
 
-  List<Map<String,dynamic>> distList= [];
-  List<Map<String,dynamic>> placeList= [];
+  List<Map<String, dynamic>> distList = [];
+  List<Map<String, dynamic>> placeList = [];
 
   String? _selectedDistrict;
   String? _selectedPlace;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     _fetchDistricts();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
   }
 
   @override
@@ -43,45 +61,42 @@ class _RegistrationState extends State<Registration> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
-  // Fetch districts from Supabase
   Future<void> _fetchDistricts() async {
     try {
       final response = await supabase.from('tbl_district').select();
-      List<Map<String,dynamic>> dist= [];
-      for(var data in response){
+      List<Map<String, dynamic>> dist = [];
+      for (var data in response) {
         dist.add({
-          'id':data['id'].toString(),
-          'name':data['dist_name']
+          'id': data['id'].toString(),
+          'name': data['dist_name']
         });
       }
-      print("Districts: $dist");
       setState(() {
-       distList=dist;
+        distList = dist;
       });
     } catch (e) {
-      print("Error fetching districts: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error fetching districts: $e')),
       );
     }
   }
 
-  // Fetch places from Supabase
   Future<void> _fetchPlaces(String id) async {
     try {
       final response = await supabase.from('tbl_place').select().eq('dist_id', id);
-      List<Map<String,dynamic>> plc= [];
-      for(var data in response){
+      List<Map<String, dynamic>> plc = [];
+      for (var data in response) {
         plc.add({
-          'id':data['place_id'].toString(),
-          'name':data['place_name']
+          'id': data['place_id'].toString(),
+          'name': data['place_name']
         });
       }
       setState(() {
-        placeList=plc;
+        placeList = plc;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -104,12 +119,10 @@ class _RegistrationState extends State<Registration> {
     if (_selectedImage == null) return null;
 
     try {
-      final String fileName =
-          '$userId/profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String fileName = '$userId/profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
       await supabase.storage.from('user').upload(fileName, _selectedImage!);
 
-      final String imageUrl =
-          supabase.storage.from('userf').getPublicUrl(fileName);
+      final String imageUrl = supabase.storage.from('user').getPublicUrl(fileName);
 
       return imageUrl;
     } catch (e) {
@@ -174,220 +187,189 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEAF3FF), // pastel blue background
+      backgroundColor: Colors.white,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20.0),
-                  const Text(
-                    "Meredith",
-                    style: TextStyle(
-                      fontSize: 28.0,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1C355E),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  const Text(
-                    "Welcome",
-                    style: TextStyle(
-                      fontSize: 22.0,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF1C355E),
-                    ),
-                  ),
-                  const SizedBox(height: 24.0),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Center(
-                          child: SizedBox(
-                            height: 120,
-                            width: 120,
-                            child: GestureDetector(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Meredith',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF3E2723),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Create Account',
+                        style: GoogleFonts.lora(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF4A2F27),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Join us today',
+                        style: GoogleFonts.openSans(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            GestureDetector(
                               onTap: _pickImage,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                // backgroundImage: _selectedImage != null
-                                //     ? FileImage(_selectedImage!,)
-                                //     : null,
-                                child: _selectedImage == null
-                                    ? const Icon(
-                                        Icons.camera_alt,
-                                        size: 40,
-                                        color: Color(0xFFB1C4D6),
+                              child: Container(
+                                height: 120,
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade50,
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: ClipOval(
+                                  child: _selectedImage == null
+                                      ? Icon(
+                                          Icons.camera_alt_outlined,
+                                          size: 40,
+                                          color: const Color(0xFF8D6E63),
+                                        )
+                                      : Image.file(
+                                          _selectedImage!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            _buildInput(_nameController, Icons.person_outline, "Your Name"),
+                            const SizedBox(height: 16),
+                            _buildInput(_emailController, Icons.email_outlined, "Your Email",
+                                isEmail: true),
+                            const SizedBox(height: 16),
+                            _buildDropdown(
+                              hint: "Select District",
+                              icon: Icons.location_city_outlined,
+                              items: distList,
+                              value: _selectedDistrict,
+                              onChanged: (value) {
+                                _fetchPlaces(value!);
+                                setState(() {
+                                  _selectedDistrict = value;
+                                  _selectedPlace = null;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDropdown(
+                              hint: "Select Place",
+                              icon: Icons.place_outlined,
+                              items: placeList,
+                              value: _selectedPlace,
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedPlace = value;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildInput(_passwordController, Icons.lock_outline, "Password",
+                                isPassword: true),
+                            const SizedBox(height: 16),
+                            _buildInput(
+                              _confirmPasswordController,
+                              Icons.lock_outline,
+                              "Confirm Password",
+                              isPassword: true,
+                              passwordValue: _passwordController.text, // <-- pass the password value
+                            ),
+                            const SizedBox(height: 24),
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6D4C41),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 100,
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
                                       )
-                                    : Image.file(
-                                        _selectedImage!,
-                                        fit: BoxFit.cover,
+                                    : Text(
+                                        'Sign Up',
+                                        style: GoogleFonts.openSans(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        _buildInput(_nameController, Icons.person, "Your Name"),
-                        const SizedBox(height: 16.0),
-                        _buildInput(_emailController, Icons.email, "Your Email",
-                            isEmail: true),
-                        const SizedBox(height: 16.0),
-                        _buildDropdown(
-                          hint: "Select District",
-                          icon: Icons.location_city,
-                          items: distList,
-                          value: _selectedDistrict,
-                          onChanged: (value) {
-                            _fetchPlaces(value!);
-                            setState(() {
-                              _selectedDistrict = value;
-                              _selectedPlace = null;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 16.0),
-                        _buildDropdown(
-                          hint: "Select Place",
-                          icon: Icons.place,
-                          items: placeList,
-                          value: _selectedPlace,
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedPlace = value;
-                            });
-                          },
-                        ),
-                        //  DropdownButtonFormField<District>(
-                        //     decoration: InputDecoration(
-                        //       hintText: "Select District",
-                        //       prefixIcon: const Icon(Icons.location_city),
-                        //       filled: true,
-                        //       fillColor: Colors.white,
-                        //       border: OutlineInputBorder(
-                        //         borderRadius: BorderRadius.circular(12.0),
-                        //         borderSide: BorderSide.none,
-                        //       ),
-                        //     ),
-                        //     items: _districts.map((District district) {
-                        //       return DropdownMenuItem<District>(
-                        //         value: district,
-                        //         child: Text(district.name),
-                        //       );
-                        //     }).toList(),
-                        //     onChanged: (District? newValue) {
-                        //       setState(() {
-                        //         _selectedDistrict = newValue;
-                        //         _selectedPlace = null; // Reset place when district changes
-                        //       });
-                        //     },
-                        //     value: _selectedDistrict,
-                        //     validator: (value) {
-                        //       if (value == null) {
-                        //         return "Please select a district";
-                        //       }
-                        //       return null;
-                        //     },
-                        //   ),
-                        // const SizedBox(height: 16.0),
-                        //  DropdownButtonFormField<Place>(
-                        //   decoration: InputDecoration(
-                        //     hintText: "Select Place",
-                        //     prefixIcon: const Icon(Icons.place),
-                        //     filled: true,
-                        //     fillColor: Colors.white,
-                        //     border: OutlineInputBorder(
-                        //       borderRadius: BorderRadius.circular(12.0),
-                        //       borderSide: BorderSide.none,
-                        //     ),
-                        //   ),
-                        //   items: _places.map((Place place) {
-                        //     return DropdownMenuItem<Place>(
-                        //       value: place,
-                        //       child: Text(place.name),
-                        //     );
-                        //   }).toList(),
-                        //   onChanged: (Place? newValue) {
-                        //     setState(() {
-                        //       _selectedPlace = newValue;
-                        //     });
-                        //   },
-                        //   value: _selectedPlace,
-                        //   validator: (value) {
-                        //     if (value == null) {
-                        //       return "Please select a place";
-                        //     }
-                        //     return null;
-                        //   },
-                        // ),
-
-                        const SizedBox(height: 16.0),
-                        _buildInput(_passwordController, Icons.lock, "Password",
-                            isPassword: true),
-                        const SizedBox(height: 16.0),
-                        _buildInput(_confirmPasswordController,
-                            Icons.lock_outline, "Confirm Password",
-                            isPassword: true),
-                        const SizedBox(height: 24.0),
-                        ElevatedButton(
-                          onPressed: _isLoading ? null : _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFFD2B48C), // light brown
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            shadowColor: Colors.black.withOpacity(0.1),
-                          ),
-                          child: _isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white)
-                              : const Text(
-                                  "Sign Up",
-                                  style: TextStyle(
-                                      fontSize: 16.0, color: Colors.white),
+                            const SizedBox(height: 16),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const Login()),
+                                );
+                              },
+                              child: Text(
+                                'Already have an account? Sign In',
+                                style: GoogleFonts.openSans(
+                                  fontSize: 14,
+                                  color: const Color(0xFF8D6E63),
+                                  fontWeight: FontWeight.w600,
                                 ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Login()),
-                            );
-                          },
-                          child: const Text(
-                            "Already have an account? Sign In",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF7D8CA2),
-                              fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -398,17 +380,27 @@ class _RegistrationState extends State<Registration> {
 }
 
 Widget _buildInput(TextEditingController controller, IconData icon, String hint,
-    {bool isPassword = false, bool isEmail = false}) {
+    {bool isPassword = false, bool isEmail = false, String? passwordValue}) {
   return TextFormField(
     controller: controller,
     decoration: InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(icon, color: Color(0xFFB1C4D6)),
+      hintStyle: GoogleFonts.openSans(
+        color: Colors.grey.shade400,
+      ),
+      prefixIcon: Icon(
+        icon,
+        color: const Color(0xFF8D6E63),
+      ),
       filled: true,
-      fillColor: const Color(0xFFF3F6FB),
+      fillColor: Colors.grey.shade50,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 20,
       ),
     ),
     obscureText: isPassword,
@@ -420,33 +412,49 @@ Widget _buildInput(TextEditingController controller, IconData icon, String hint,
       if (isEmail && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
         return "Please enter a valid email address";
       }
+      if (hint == "Confirm Password" && value != passwordValue) {
+        return "Passwords do not match";
+      }
       return null;
     },
   );
 }
 
-Widget _buildDropdown<T>({
+Widget _buildDropdown({
   required String hint,
   required IconData icon,
-  required List<Map<String,dynamic>> items,
-  required T? value,
-  required Function(T?) onChanged,
+  required List<Map<String, dynamic>> items,
+  required String? value,
+  required Function(String?) onChanged,
 }) {
-  return DropdownButtonFormField(
+  return DropdownButtonFormField<String>(
     decoration: InputDecoration(
       hintText: hint,
-      prefixIcon: Icon(icon, color: Color(0xFFB1C4D6)),
+      hintStyle: GoogleFonts.openSans(
+        color: Colors.grey.shade400,
+      ),
+      prefixIcon: Icon(
+        icon,
+        color: const Color(0xFF8D6E63),
+      ),
       filled: true,
-      fillColor: const Color(0xFFF3F6FB),
+      fillColor: Colors.grey.shade50,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16),
         borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(
+        vertical: 16,
+        horizontal: 20,
       ),
     ),
     items: items.map((item) {
-      return DropdownMenuItem<T>(
+      return DropdownMenuItem<String>(
         value: item['id'],
-        child: Text(item['name']),
+        child: Text(
+          item['name'],
+          style: GoogleFonts.openSans(),
+        ),
       );
     }).toList(),
     onChanged: onChanged,
