@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:user/Screens/changepassword.dart';
 import 'package:user/Screens/editprofile.dart';
 import 'package:user/Screens/feedback.dart';
@@ -44,24 +45,33 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('My Profile', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: const Color(0xFFbc6c25),
+        title: Text(
+          'My Profile',
+          style: GoogleFonts.lora(
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF3E2723),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh, color: Color(0xFF8D6E63)),
             tooltip: 'Refresh',
             onPressed: display,
           ),
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Color(0xFF8D6E63)))
           : Center(
               child: Card(
-                elevation: 6,
-                margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                color: Color(0xFFF9F6F2),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                   child: Column(
@@ -72,12 +82,12 @@ class _ProfileState extends State<Profile> {
                         children: [
                           CircleAvatar(
                             radius: 60,
-                            backgroundColor: Colors.grey[200],
+                            backgroundColor: Colors.grey[100],
                             backgroundImage: (userData['user_photo'] != null && userData['user_photo'].toString().isNotEmpty)
                                 ? NetworkImage(userData['user_photo'])
                                 : null,
                             child: (userData['user_photo'] == null || userData['user_photo'].toString().isEmpty)
-                                ? const Icon(Icons.person, size: 60, color: Colors.grey)
+                                ? Icon(Icons.person, size: 60, color: Colors.grey.shade400)
                                 : null,
                           ),
                           Positioned(
@@ -86,8 +96,9 @@ class _ProfileState extends State<Profile> {
                             child: Material(
                               color: Colors.white,
                               shape: const CircleBorder(),
+                              elevation: 2,
                               child: IconButton(
-                                icon: const Icon(Icons.edit, color: Color(0xFFbc6c25)),
+                                icon: Icon(Icons.edit, color: Color(0xFF8D6E63)),
                                 tooltip: 'Edit Profile Picture',
                                 onPressed: () {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
@@ -100,30 +111,47 @@ class _ProfileState extends State<Profile> {
                       const SizedBox(height: 18),
                       Text(
                         userData['user_name'] ?? 'N/A',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFFbc6c25)),
+                        style: GoogleFonts.lora(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF3E2723),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         userData['user_email'] ?? 'N/A',
-                        style: const TextStyle(fontSize: 16, color: Colors.black54),
+                        style: GoogleFonts.openSans(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       if (userData['user_phone'] != null)
                         Text(
                           userData['user_phone'],
-                          style: const TextStyle(fontSize: 15, color: Colors.black54),
+                          style: GoogleFonts.openSans(
+                            fontSize: 15,
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                       const SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton.icon(
-                            icon: const Icon(Icons.edit, color: Colors.white),
-                            label: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+                            icon: Icon(Icons.edit, color: Colors.white),
+                            label: Text(
+                              'Edit Profile',
+                              style: GoogleFonts.openSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFbc6c25),
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              backgroundColor: Color(0xFF6D4C41),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
                             ),
                             onPressed: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
@@ -131,12 +159,19 @@ class _ProfileState extends State<Profile> {
                           ),
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
-                            icon: const Icon(Icons.lock, color: Colors.white),
-                            label: const Text('Change Password', style: TextStyle(color: Colors.white)),
+                            icon: Icon(Icons.lock, color: Colors.white),
+                            label: Text(
+                              'Change Password',
+                              style: GoogleFonts.openSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.brown,
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              backgroundColor: Color(0xFF8D6E63),
+                              padding: const EdgeInsets.symmetric(horizontal: 19, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
                             ),
                             onPressed: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => Changepwd()));
@@ -145,19 +180,20 @@ class _ProfileState extends State<Profile> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      Divider(color: Colors.grey[300]),
+                      Divider(color: Colors.grey.shade300),
                       const SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context,  MaterialPageRoute(builder: (context) => FeedbackPage()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackPage()));
                         },
-                        child: const Text(
+                        child: Text(
                           'Report an issue',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 0, 0, 0),
+                          style: GoogleFonts.openSans(
+                            color: Color(0xFF8D6E63),
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             decoration: TextDecoration.underline,
+                            decorationColor: Color(0xFF8D6E63),
                           ),
                         ),
                       ),
