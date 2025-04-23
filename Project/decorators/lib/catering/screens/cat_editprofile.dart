@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:decorators/catering/widgets/custom_catering_appbar.dart';
 import 'package:decorators/main.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -122,18 +123,9 @@ class _CatEditprofileState extends State<CatEditprofile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA), // Pastel light grey
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            color: const Color(0xFF3A3A3A),
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF3A3A3A)),
-        elevation: 0,
-        shadowColor: Colors.black12,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70),
+        child: CustomCateringAppBar(isScrolled: false),
       ),
       body: Center(
         child: Container(
